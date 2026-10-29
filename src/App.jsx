@@ -1,14 +1,21 @@
-import Greeting from "./Greeting"; // 방금 만든 자식 컴포넌트 불러오기
+import { useState } from "react"; // 1. 리액트에서 useState 도구 불러오기
 
 function App() {
+  // 2. count라는 상태 변수와 값을 바꿀 수 있는 setCount 함수 선언 (초기값은 0)
+  const [count, setCount] = useState(0);
+
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
-      <h1>🌿 3일차 리액트 실습: Props 활용하기</h1>
+      <h1>🌿 4일차 리액트 실습: State(상태) 활용하기</h1>
+      <p>현재 카운트: <strong>{count}</strong></p>
       
-      {/* 같은 Greeting 컴포넌트에 서로 다른 props 전달하여 재사용 */}
-      <Greeting name="현서" role="프론트엔드 개발자" />
-      <Greeting name="홍길동" role="백엔드 개발자" />
-      <Greeting name="김영희" role="UI/UX 디자이너" />
+      {/* 3. 버튼을 누를 때마다 setCount를 통해 count 값이 1씩 증가 */}
+      <button 
+        onClick={() => setCount(count + 1)}
+        style={{ padding: "10px 20px", fontSize: "16px", cursor: "pointer" }}
+      >
+        숫자 증가 ➕
+      </button>
     </div>
   );
 }
