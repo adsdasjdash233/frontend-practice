@@ -1,21 +1,38 @@
-import { useState } from "react"; // 1. 리액트에서 useState 도구 불러오기
+import { useState } from "react";
 
 function App() {
-  // 2. count라는 상태 변수와 값을 바꿀 수 있는 setCount 함수 선언 (초기값은 0)
-  const [count, setCount] = useState(0);
+  // 사용자가 입력하는 텍스트를 저장할 상태
+  const [text, setText] = useState("");
+
+  // 입력창에 글자가 바뀔 때마다 실행되는 함수
+  const handleChange = (e) => {
+    setText(e.target.value);
+  };
 
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
-      <h1>🌿 4일차 리액트 실습: State(상태) 활용하기</h1>
-      <p>현재 카운트: <strong>{count}</strong></p>
+      <h1>🌿 5일차 리액트 실습: 입력값 다루기</h1>
       
-      {/* 3. 버튼을 누를 때마다 setCount를 통해 count 값이 1씩 증가 */}
+      {/* 사용자 입력을 받는 인풋박스 */}
+      <input 
+        type="text" 
+        value={text} 
+        onChange={handleChange} 
+        placeholder="글을 입력해 보세요..."
+        style={{ padding: "8px", fontSize: "16px", width: "250px", marginRight: "10px" }}
+      />
+      
+      {/* 입력 초기화 버튼 */}
       <button 
-        onClick={() => setCount(count + 1)}
-        style={{ padding: "10px 20px", fontSize: "16px", cursor: "pointer" }}
+        onClick={() => setText("")}
+        style={{ padding: "8px 12px", cursor: "pointer" }}
       >
-        숫자 증가 ➕
+        초기화
       </button>
+
+      <p style={{ marginTop: "20px" }}>
+        내가 입력한 내용: <strong>{text || "아직 입력된 내용이 없습니다."}</strong>
+      </p>
     </div>
   );
 }
