@@ -1,38 +1,43 @@
 import { useState } from "react";
 
 function App() {
-  // 사용자가 입력하는 텍스트를 저장할 상태
-  const [text, setText] = useState("");
+  const [inputText, setInputText] = useState(""); // 1. 입력창 텍스트 상태
+  const [todos, setTodos] = useState([]); // 2. 할 일 목록 배열 상태
 
-  // 입력창에 글자가 바뀔 때마다 실행되는 함수
-  const handleChange = (e) => {
-    setText(e.target.value);
+  // 추가 버튼 클릭 시 실행되는 함수
+  const handleAdd = () => {
+    if (inputText.trim() === "") return; // 빈 값 방지
+    setTodos([...todos, inputText]); // 기존 배열에 새 입력값 추가 (스프레드 연산자)
+    setInputText(""); // 입력창 초기화
   };
 
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
-      <h1>🌿 5일차 리액트 실습: 입력값 다루기</h1>
+      <h1>🌿 6일차 리액트 실습: Todo 목록 만들기</h1>
       
-      {/* 사용자 입력을 받는 인풋박스 */}
+      {/* 입력 영역 */}
       <input 
         type="text" 
-        value={text} 
-        onChange={handleChange} 
-        placeholder="글을 입력해 보세요..."
+        value={inputText} 
+        onChange={(e) => setInputText(e.target.value)} 
+        placeholder="할 일을 입력하세요..."
         style={{ padding: "8px", fontSize: "16px", width: "250px", marginRight: "10px" }}
       />
-      
-      {/* 입력 초기화 버튼 */}
       <button 
-        onClick={() => setText("")}
-        style={{ padding: "8px 12px", cursor: "pointer" }}
+        onClick={handleAdd}
+        style={{ padding: "8px 15px", fontSize: "16px", cursor: "pointer" }}
       >
-        초기화
+        추가 ➕
       </button>
 
-      <p style={{ marginTop: "20px" }}>
-        내가 입력한 내용: <strong>{text || "아직 입력된 내용이 없습니다."}</strong>
-      </p>
+      {/* 목록 출력 영역 */}
+      <ul style={{ marginTop: "20px", fontSize: "18px" }}>
+        {todos.map((todo, index) => (
+          <li key={index} style={{ marginBottom: "8px" }}>
+            {todo}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
