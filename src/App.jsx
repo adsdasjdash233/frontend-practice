@@ -1,91 +1,47 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function App() {
-  const [inputText, setInputText] = useState("");
-  // 단순히 문자열만 담던 배열에서 id, text, isDone 객체를 포함하는 배열로 관리
-  const [todos, setTodos] = useState([]);
+  const [users, setUsers] = useState([]); // 사용자 목록 데이터를 담을 상태
+  const [loading, setLoading] = useState(true); // 로딩 상태
 
-  // 1. 할 일 추가
-  const handleAdd = () => {
-    if (inputText.trim() === "") return;
-    const newTodo = {
-      id: Date.now(), // 고유한 ID 값 생성
-      text: inputText,
-      isDone: false, // 완료 여부 (초기값 false)
-    };
-    setTodos([...todos, newTodo]);
-    setInputText("");
-  };
-
-  // 2. 완료 상태 토글 (클릭 시 취소선)
-  const handleToggle = (id) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, isDone: !todo.isDone } : todo
-      )
-    );
-  };
-
-  // 3. 할 일 삭제 (filter 사용)
-  const handleDelete = (id) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
-  };
+  // 컴포넌트가 처음 화면에 나타날 때(Mount) 외부 API 호출
+  useEffect(() => {
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then((response) => response.json())
+      .then((data) => {
+        setUsers(data); // 받아온 데이터를 상태에 저장
+        setLoading(false); // 로딩 완료
+      })
+      .catch((error) => {
+        console.error("데이터를 불러오는 중 에러가 발생했습니다:", error);
+        setLoading(false);
+      });
+  }, []); // 빈 배열([])을 넣으면 컴포넌트가 처음 렌더링될 때 딱 한 번만 실행됩니다.
 
   return (
-    <div style={{ padding: "20px", fontFamily: "sans-serif", maxWidth: "450px" }}>
-      <h1>🌿 7일차 리액트 실습: Todo 완료/삭제</h1>
+    <div style={{ padding: "20px", fontFamily: "sans-serif", maxWidth: "600px" }}>
+      <h1>🌿 8일차 리액트 실습: 외부 API 데이터 불러오기</h1>
+      <p>JSONPlaceholder 가상 사용자 API를 연동한 예제입니다.</p>
 
-      {/* 입력 영역 */}
-      <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
-        <input
-          type="text"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          placeholder="할 일을 입력하세요..."
-          style={{ flex: 1, padding: "8px", fontSize: "16px" }}
-        />
-        <button onClick={handleAdd} style={{ padding: "8px 12px", cursor: "pointer" }}>
-          추가
-        </button>
-      </div>
+      {/* 로딩 중일 때 보여줄 화면 */}
+      {loading && <p style={{ color: "#666" }}>⏳ 데이터를 불러오는 중입니다...</p>}
 
-      {/* 목록 출력 영역 */}
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {todos.map((todo) => (
+      {/* 데이터 목록 출력 */}
+      <ul style={{ listStyle: "none", padding: 0, marginTop: "20px" }}>
+        {users.map((user) => (
           <li
-            key={todo.id}
+            key={user.id}
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "8px 0",
-              borderBottom: "1px solid #eee",
+              padding: "12px",
+              marginBottom: "10px",
+              border: "1px solid #ddd",
+              borderRadius: "6px",
+              backgroundColor: "#f9f9f9",
             }}
           >
-            <span
-              onClick={() => handleToggle(todo.id)}
-              style={{
-                cursor: "pointer",
-                textDecoration: todo.isDone ? "line-through" : "none",
-                color: todo.isDone ? "#888" : "#000",
-              }}
-            >
-              {todo.isDone ? "✅ " : "⬜ "}
-              {todo.text}
-            </span>
-            <button
-              onClick={() => handleDelete(todo.id)}
-              style={{
-                backgroundColor: "#ff4d4d",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                padding: "4px 8px",
-                cursor: "pointer",
-              }}
-            >
-              삭제
-            </button>
+            <strong>{user.name}</strong> ({user.username})<br />
+            <span style={{ fontSize: "14px", color: "#555" }}>📧 이메일: {user.email}</span><br />
+            <span style={{ fontSize: "14px", color: "#555" }}>🌐 웹사이트: {user.website}</span>
           </li>
         ))}
       </ul>
