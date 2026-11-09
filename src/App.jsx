@@ -1,33 +1,18 @@
-import { useState, useEffect } from "react";
+import useFetch from "./hooks/useFetch";
 import UserList from "./components/UserList";
 
 function App() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((response) => response.json())
-      .then((data) => {
-        setUsers(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("데이터를 불러오는 중 에러가 발생했습니다:", error);
-        setLoading(false);
-      });
-  }, []);
+  // 복잡한 fetch와 useEffect 로직이 커스텀 훅 한 줄로 깔끔하게 정리됩니다!
+  const { data: users, loading, error } = useFetch("https://jsonplaceholder.typicode.com/users");
 
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif", maxWidth: "600px" }}>
-      <h1>🌿 9일차 리액트 실습: 컴포넌트 분리 및 리팩토링</h1>
-      <p>App.jsx의 역할을 단순화하고 목록/카드를 별도 컴포넌트로 분리했습니다.</p>
+      <h1>🌿 10일차 리액트 실습: Custom Hook (useFetch)</h1>
+      <p>데이터 패칭 로직을 useFetch 커스텀 훅으로 완전 분리했습니다.</p>
 
-      {loading ? (
-        <p style={{ color: "#666" }}>⏳ 데이터를 불러오는 중입니다...</p>
-      ) : (
-        <UserList users={users} />
-      )}
+      {loading && <p style={{ color: "#666" }}>⏳ 데이터를 불러오는 중입니다...</p>}
+      {error && <p style={{ color: "red" }}>⚠️ 에러 발생: {error}</p>}
+      {users && <UserList users={users} />}
     </div>
   );
 }
