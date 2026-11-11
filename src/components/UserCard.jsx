@@ -11,8 +11,8 @@ function UserCard({ user }) {
       }}
     >
       <strong>{user.name}</strong> ({user.username})<br />
-      <span style={{ fontSize: "14px", color: "#555" }}>📧 이메일: {user.email}</span><br />
-      <span style={{ fontSize: "14px", color: "#555" }}>🌐 웹사이트: {user.website}</span>
+      <span style={{ fontSize: "14px", color: "#555" }}> 이메일: {user.email}</span><br />
+      <span style={{ fontSize: "14px", color: "#555" }}> 웹사이트: {user.website}</span>
     </li>
   );
 }

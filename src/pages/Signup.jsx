@@ -13,17 +13,17 @@ function Signup() {
       return;
     }
 
-    // 간단하게 회원 정보를 객체로 만들어 localStorage에 저장
+    // 로컬 스토어에 회원 정보 객체 저장 (DB 대용)
     const userInfo = { id, password };
     localStorage.setItem("registeredUser", JSON.stringify(userInfo));
 
-    alert("회원가입이 완료되었습니다.");
-    navigate("/login"); // 가입 후 로그인 페이지로 이동
+    alert("회원가입 완료");
+    navigate("/login");
   };
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>📝 회원가입</h2>
+      <h2>회원가입</h2>
       <form onSubmit={handleSignup} style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "300px" }}>
         <input
           type="text"

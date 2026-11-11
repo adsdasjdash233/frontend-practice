@@ -9,17 +9,19 @@ function Login({ setIsLoggedIn }) {
   const handleLogin = (e) => {
     e.preventDefault();
     
+    // 가입된 회원 정보 조회
     const savedUser = JSON.parse(localStorage.getItem("registeredUser"));
 
     if (!savedUser) {
-      alert("등록된 회원 정보가 없습니다. 먼저 회원가입을 해주세요.");
+      alert("등록된 회원 정보가 없습니다.");
       return;
     }
 
+    // 입력값 검증 및 로그인 상태 갱신
     if (savedUser.id === id && savedUser.password === password) {
-      alert("로그인 성공");
+      alert("로그인 성공!");
       setIsLoggedIn(true);
-      localStorage.setItem("isLoggedIn", "true"); // 로그인 상태 유지
+      localStorage.setItem("isLoggedIn", "true"); // 새로고침 유지용 플래그
       navigate("/mypage");
     } else {
       alert("아이디 또는 비밀번호가 일치하지 않습니다.");
