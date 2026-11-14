@@ -1,7 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function ItemRegisterForm() {
-  // 폼 데이터를 하나의 객체 상태로 관리
+  const navigate = useNavigate();
+  const currentUser = localStorage.getItem("currentUser");
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+  useEffect(() => {
+    if (!isLoggedIn || !currentUser) {
+      alert("로그인이 필요한 서비스입니다.");
+      navigate("/login");
+    }
+  }, [isLoggedIn, currentUser, navigate]);
+
   const [formData, setFormData] = useState({
     title: '',
     pricePerDay: '',
@@ -9,23 +20,37 @@ function ItemRegisterForm() {
     description: ''
   });
 
-  // 입력값이 바뀔 때마다 상태를 업데이트하는 공통 핸들러
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // 폼 제출(등록 버튼 클릭) 시 실행
   const handleSubmit = (e) => {
-    e.preventDefault(); // 브라우저 새로고침 방지
-    
-    console.log('백엔드 API로 전송될 물품 폼 데이터:', formData);
-    alert('물품 등록 폼 데이터가 콘솔에 출력되었습니다!');
+    e.preventDefault();
+    if (!formData.title || !formData.pricePerDay) {
+      alert("물품 제목과 대여료를 입력해주세요.");
+      return;
+    }
+
+    const existingItems = JSON.parse(localStorage.getItem("items")) || [];
+
+    const newItem = {
+      id: Date.now(),
+      ...formData,
+      owner: currentUser,     // 현재 로그인한 사용자가 소유자로 지정
+      renter: null,           // 초기 대여자 없음
+      status: 'AVAILABLE'     // 초기 대여 상태
+    };
+
+    localStorage.setItem("items", JSON.stringify([...existingItems, newItem]));
+    alert(`'${formData.title}' 물품이 등록되었습니다.`);
+    navigate("/rental");
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "12px" }}>
-      <h2 style={{ fontSize: "20px", fontWeight: "bold" }}>대여 물품 등록</h2>
+    <form onSubmit={handleSubmit} style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "12px", maxWidth: "400px" }}>
+      <h2>대여 물품 등록</h2>
+      <p style={{ fontSize: "13px", color: "#555", margin: 0 }}>등록자(소유자): <strong>{currentUser}</strong></p>
       
       <input
         name="title"
@@ -40,7 +65,7 @@ function ItemRegisterForm() {
         type="number"
         value={formData.pricePerDay}
         onChange={handleChange}
-        placeholder="1일 대여료"
+        placeholder="1일 대여료 (원)"
         style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
       />
       

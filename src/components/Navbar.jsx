@@ -5,6 +5,7 @@ function Navbar({ isLoggedIn }) {
     <nav style={{ padding: "15px 20px", borderBottom: "1px solid #ddd", display: "flex", gap: "15px", alignItems: "center" }}>
       <Link to="/" style={{ textDecoration: "none", color: "#333", fontWeight: "bold" }}>Home</Link>
       <Link to="/register" style={{ textDecoration: "none", color: "#333" }}>물품등록</Link>
+      <Link to="/rental" style={{ textDecoration: "none", color: "#333" }}>대여관리</Link>
       
       {isLoggedIn ? (
         <Link to="/mypage" style={{ textDecoration: "none", color: "#333" }}>마이페이지</Link>
