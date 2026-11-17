@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Login({ setIsLoggedIn }) {
   const [id, setId] = useState("");
@@ -37,34 +37,61 @@ function Login({ setIsLoggedIn }) {
     localStorage.setItem("isLoggedIn", "true");
     localStorage.setItem("currentUser", id);
     
-    // 마이페이지나 홈으로 이동
-    navigate("/mypage");
+    // 홈 또는 마이페이지로 이동
+    navigate("/");
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>로그인</h2>
-      <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "300px" }}>
-        <input
-          type="text"
-          placeholder="아이디"
-          value={id}
-          onChange={(e) => setId(e.target.value)}
-          style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-        />
-        <input
-          type="password"
-          placeholder="비밀번호"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-        />
-        <button type="submit" style={{ padding: "10px", backgroundColor: "#008CBA", color: "white", border: "none", borderRadius: "4px", fontWeight: "bold", cursor: "pointer" }}>
-          로그인
-        </button>
-      </form>
+    <div style={{ backgroundColor: "#f4f5f7", minHeight: "calc(100vh - 53px)", padding: "60px 20px", fontFamily: "sans-serif", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+      <div style={{ width: "100%", maxWidth: "420px", backgroundColor: "#fff", padding: "32px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box" }}>
+        
+        <h2 style={{ fontSize: "20px", fontWeight: "bold", color: "#333", margin: "0 0 6px 0", textAlign: "center" }}>Everrent 로그인</h2>
+        <p style={{ fontSize: "13px", color: "#666", margin: "0 0 24px 0", textAlign: "center" }}>캠퍼스 물품 대여 서비스에 로그인하세요.</p>
+
+        <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>아이디</label>
+            <input
+              type="text"
+              placeholder="아이디를 입력하세요"
+              value={id}
+              onChange={(e) => setId(e.target.value)}
+              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
+              required
+            />
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>비밀번호</label>
+            <input
+              type="password"
+              placeholder="비밀번호를 입력하세요"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
+              required
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            style={{ width: "100%", padding: "14px", backgroundColor: "#00c73c", color: "white", border: "none", borderRadius: "4px", fontWeight: "bold", fontSize: "15px", cursor: "pointer", marginTop: "8px" }}
+          >
+            로그인
+          </button>
+
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", marginTop: "12px", fontSize: "13px", color: "#666" }}>
+            <span>계정이 없으신가요?</span>
+            <Link to="/signup" style={{ color: "#00c73c", textDecoration: "none", fontWeight: "bold" }}>회원가입</Link>
+          </div>
+
+        </form>
+      </div>
     </div>
   );
 }
+
+Login.displayName = "Login";
 
 export default Login;

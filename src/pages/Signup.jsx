@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Signup() {
   const [id, setId] = useState("");
@@ -35,54 +35,92 @@ function Signup() {
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "300px" }}>
-      <h2>회원가입</h2>
-      <form onSubmit={handleSignup} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        <input
-          type="text"
-          placeholder="아이디"
-          value={id}
-          onChange={(e) => setId(e.target.value)}
-          style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-        />
-        <input
-          type="password"
-          placeholder="비밀번호"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-        />
-        <input
-          type="text"
-          placeholder="이름"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-        />
-        <select
-          value={gender}
-          onChange={(e) => setGender(e.target.value)}
-          style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-        >
-          <option value="남성">남성</option>
-          <option value="여성">여성</option>
-        </select>
-        <input
-          type="text"
-          placeholder="거주지역 (예: 대구 중구)"
-          value={residence}
-          onChange={(e) => setResidence(e.target.value)}
-          style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-        />
-        <button 
-          type="submit" 
-          style={{ padding: "10px", backgroundColor: "#16a34a", color: "white", border: "none", borderRadius: "4px", fontWeight: "bold", cursor: "pointer" }}
-        >
-          가입하기
-        </button>
-      </form>
+    <div style={{ backgroundColor: "#f4f5f7", minHeight: "calc(100vh - 53px)", padding: "60px 20px", fontFamily: "sans-serif", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+      <div style={{ width: "100%", maxWidth: "420px", backgroundColor: "#fff", padding: "32px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box" }}>
+        
+        <h2 style={{ fontSize: "20px", fontWeight: "bold", color: "#333", margin: "0 0 6px 0", textAlign: "center" }}>Everrent 회원가입</h2>
+        <p style={{ fontSize: "13px", color: "#666", margin: "0 0 24px 0", textAlign: "center" }}>캠퍼스 물품 대여 서비스의 회원이 되어보세요.</p>
+
+        <form onSubmit={handleSignup} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>아이디</label>
+            <input
+              type="text"
+              placeholder="사용할 아이디를 입력하세요"
+              value={id}
+              onChange={(e) => setId(e.target.value)}
+              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
+              required
+            />
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>비밀번호</label>
+            <input
+              type="password"
+              placeholder="비밀번호를 입력하세요"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
+              required
+            />
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>이름</label>
+            <input
+              type="text"
+              placeholder="이름을 입력하세요"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
+              required
+            />
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>성별</label>
+            <select
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none", backgroundColor: "#fff", boxSizing: "border-box" }}
+            >
+              <option value="남성">남성</option>
+              <option value="여성">여성</option>
+            </select>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>거주지역</label>
+            <input
+              type="text"
+              placeholder="거주지역 (예: 대구 북구)"
+              value={residence}
+              onChange={(e) => setResidence(e.target.value)}
+              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
+              required
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            style={{ width: "100%", padding: "14px", backgroundColor: "#00c73c", color: "white", border: "none", borderRadius: "4px", fontWeight: "bold", fontSize: "15px", cursor: "pointer", marginTop: "8px" }}
+          >
+            가입하기
+          </button>
+
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", marginTop: "12px", fontSize: "13px", color: "#666" }}>
+            <span>이미 계정이 있으신가요?</span>
+            <Link to="/login" style={{ color: "#00c73c", textDecoration: "none", fontWeight: "bold" }}>로그인</Link>
+          </div>
+
+        </form>
+      </div>
     </div>
   );
 }
+
+Signup.displayName = "Signup";
 
 export default Signup;

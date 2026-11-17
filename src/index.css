@@ -114,3 +114,144 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* 상단 고정 네비게이션 바 */
+.top-navbar {
+  width: 100%;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 32px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.nav-menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 24px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.nav-menu li {
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.nav-menu li:hover,
+.nav-menu li.active {
+  color: var(--text-h);
+  font-weight: 700;
+}
+
+/* 메인 컨텐츠 와이드 컨테이너 */
+.main-container {
+  width: 100%;
+  max-width: 1360px;
+  margin: 28px auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.left-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.right-column {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 공통 카드 박스 */
+.card-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* 검색 입력창 개선  깔끔한 밝은 입력창) */
+.search-input-box {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px 16px;
+  font-size: 15px;
+  color: var(--text-h);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input-box:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+/* 우측 프로필 & 버튼 스타일 */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.profile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.btn-logout {
+  width: 100%;
+  padding: 10px;
+  background: var(--bg);
+  color: #dc2626;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.btn-logout:hover {
+  background: #fef2f2;
+}
+
+/* 반응형 대응 */
+@media (max-width: 900px) {
+  .main-container {
+    flex-direction: column;
+  }
+  .right-column {
+    width: 100%;
+  }
+}

@@ -16,10 +16,13 @@ function Home() {
 
   const availableItems = items.filter(item => item.status === 'AVAILABLE');
 
-  const searchResults = availableItems.filter(item => 
-    item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // 검색어가 있을 경우 검색 필터링 적용
+  const displayedItems = searchTerm.trim() === "" 
+    ? availableItems 
+    : availableItems.filter(item => 
+        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
 
   const handleRequestRental = (itemId) => {
     if (!isLoggedIn) {
@@ -31,7 +34,7 @@ function Home() {
     const updatedItems = items.map(item => {
       if (item.id === itemId) {
         if (item.owner === currentUser) {
-          alert("내가 등록한 물품은 대여 신청할 수 없습니다.");
+          alert("보인이 등록한 물품은 본인이 대여할 수 없습니다.");
           return item;
         }
         return {
@@ -58,10 +61,10 @@ function Home() {
   return (
     <div style={{ backgroundColor: "#f4f5f7", minHeight: "calc(100vh - 53px)", fontFamily: "sans-serif", padding: "24px 0 40px 0" }}>
       
-      {/* 네이버 스타일 레이아웃: 전체 폭을 적절히 넓게 잡고 좌우 2분할 (좌측: 메인 피드 / 우측: 로그인 위젯) */}
+      {/* 전체 와이드 레이아웃 */}
       <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", display: "flex", gap: "20px", padding: "0 20px", boxSizing: "border-box" }}>
         
-        {/* [좌측 영역] 상단 검색 바 + 중단 전체 대여 가능 물품 리스트 */}
+        {/* [좌측 영역] 검색 바 + 통합 물품 리스트 */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "16px", minWidth: 0 }}>
           
           {/* 1. 상단 검색 영역 */}
@@ -78,48 +81,21 @@ function Home() {
             />
           </div>
 
-          {/* 검색 결과 영역 (검색어 입력 시에만 노출) */}
-          {searchTerm.trim() !== "" && (
-            <div style={{ backgroundColor: "#fff", padding: "20px 24px", borderRadius: "8px", border: "1px solid #e1e2e3" }}>
-              <h3 style={{ fontSize: "14px", fontWeight: "bold", margin: "0 0 12px 0", color: "#333" }}>
-                검색 결과 ({searchResults.length}건)
-              </h3>
-              {searchResults.length === 0 ? (
-                <p style={{ fontSize: "13px", color: "#888", margin: 0 }}>검색 결과가 없습니다.</p>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  {searchResults.map(item => (
-                    <div key={item.id} style={{ padding: "12px 14px", background: "#f8f9fa", border: "1px solid #e5e8eb", borderRadius: "6px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div>
-                        <strong style={{ fontSize: "14px", color: "#333" }}>{item.title}</strong>
-                        <div style={{ fontSize: "12px", color: "#666", marginTop: "2px" }}>{Number(item.pricePerDay).toLocaleString()}원/일 · 카테고리: {item.category}</div>
-                      </div>
-                      {item.owner !== currentUser && (
-                        <button 
-                          onClick={() => handleRequestRental(item.id)}
-                          style={{ padding: "6px 12px", backgroundColor: "#333", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" }}
-                        >
-                          대여신청
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* 2. 중단: 전체 대여 가능 물품 리스트 */}
+          {/* 2. 대여 가능 물품 리스트 (검색어 입력 시 결과 카운트 표시) */}
           <div style={{ backgroundColor: "#fff", padding: "20px 24px", borderRadius: "8px", border: "1px solid #e1e2e3" }}>
-            <h3 style={{ fontSize: "15px", fontWeight: "bold", margin: "0 0 14px 0", color: "#333" }}>전체 대여 가능 물품 리스트</h3>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+              <h3 style={{ fontSize: "15px", fontWeight: "bold", margin: 0, color: "#333" }}>
+                {searchTerm.trim() !== "" ? `검색 결과 (${displayedItems.length}건)` : "전체 대여 가능 물품 리스트"}
+              </h3>
+            </div>
             
-            {availableItems.length === 0 ? (
+            {displayedItems.length === 0 ? (
               <div style={{ textAlign: "center", padding: "50px 0", color: "#888", fontSize: "13px" }}>
-                현재 대여 가능한 물품이 없습니다.
+                {searchTerm.trim() !== "" ? "일치하는 검색 결과가 없습니다." : "현재 대여 가능한 물품이 없습니다."}
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                {availableItems.map(item => (
+                {displayedItems.map(item => (
                   <div key={item.id} style={{ padding: "16px", border: "1px solid #e5e8eb", borderRadius: "6px", display: "flex", flexDirection: "column", gap: "8px", backgroundColor: "#fff" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <span style={{ fontSize: "11px", color: "#666", backgroundColor: "#f1f3f5", padding: "2px 6px", borderRadius: "4px" }}>
@@ -155,7 +131,7 @@ function Home() {
 
         </div>
 
-        {/* [우측 영역] 로그인 / 내 정보 위젯 (고정 폭 340px) */}
+        {/* [우측 영역] 로그인 / 내 정보 위젯 */}
         <div style={{ width: "340px", display: "flex", flexDirection: "column", gap: "16px", flexShrink: 0 }}>
           
           {!isLoggedIn ? (

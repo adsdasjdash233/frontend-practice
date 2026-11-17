@@ -25,6 +25,10 @@ function MyPage({ setIsLoggedIn }) {
     residence: ''
   });
 
+  // 내가 등록하거나 대여한 물품 카운트를 위한 상태
+  const [myItemsCount, setMyItemsCount] = useState(0);
+  const [myRentalCount, setMyRentalCount] = useState(0);
+
   useEffect(() => {
     if (!isLoggedIn || !currentUser) {
       alert("로그인이 필요한 서비스입니다.");
@@ -40,6 +44,11 @@ function MyPage({ setIsLoggedIn }) {
       setUserInfo(foundUser);
       setEditForm(foundUser);
     }
+
+    // 물품 데이터 연동하여 통계 계산
+    const allItems = JSON.parse(localStorage.getItem("items")) || [];
+    setMyItemsCount(allItems.filter(item => item.owner === currentUser).length);
+    setMyRentalCount(allItems.filter(item => item.renter === currentUser && item.status !== 'AVAILABLE').length);
   }, [isLoggedIn, currentUser, navigate]);
 
   const handleUnlock = (e) => {
@@ -69,7 +78,6 @@ function MyPage({ setIsLoggedIn }) {
       residence: editForm.residence
     };
 
-    // 전체 users 배열에서 현재 사용자 데이터만 교체하여 저장
     const users = JSON.parse(localStorage.getItem("users")) || [];
     const updatedUsers = users.map(user => user.id === currentUser ? updatedUser : user);
 
@@ -84,135 +92,149 @@ function MyPage({ setIsLoggedIn }) {
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("currentUser");
-    setIsLoggedIn(false);
+    if (setIsLoggedIn) setIsLoggedIn(false);
     alert("로그아웃 되었습니다.");
     navigate("/login");
   };
 
   return (
-    <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "15px", maxWidth: "400px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2 style={{ fontSize: "20px", fontWeight: "bold", margin: 0 }}>마이페이지</h2>
-        <button 
-          onClick={handleLogout}
-          style={{ padding: "6px 10px", backgroundColor: "#ef4444", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}
-        >
-          로그아웃
-        </button>
-      </div>
-
-      {!isUnlocked ? (
-        <form onSubmit={handleUnlock} style={{ padding: "15px", border: "1px solid #cbd5e1", borderRadius: "6px", display: "flex", flexDirection: "column", gap: "10px", backgroundColor: "#f8fafc" }}>
-          <p style={{ fontSize: "13px", color: "#475569", margin: 0 }}>
-            정보를 확인하거나 수정하려면 비밀번호를 한 번 더 입력해주세요.
-          </p>
-          <input
-            type="password"
-            placeholder="현재 비밀번호 입력"
-            value={authPassword}
-            onChange={(e) => setAuthPassword(e.target.value)}
-            style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-          />
+    <div style={{ backgroundColor: "#f4f5f7", minHeight: "calc(100vh - 53px)", padding: "24px 0 40px 0", fontFamily: "sans-serif" }}>
+      <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "0 20px", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "16px" }}>
+        
+        {/* 상단 헤더 영역 */}
+        <div style={{ backgroundColor: "#fff", padding: "20px 24px", borderRadius: "8px", border: "1px solid #e1e2e3", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <h2 style={{ fontSize: "18px", fontWeight: "bold", color: "#333", margin: "0 0 4px 0" }}>마이페이지</h2>
+            <p style={{ fontSize: "13px", color: "#666", margin: 0 }}>회원 정보를 관리하고 나의 대여 활동 내역을 확인합니다.</p>
+          </div>
           <button 
-            type="submit"
-            style={{ padding: "8px", backgroundColor: "#2563eb", color: "white", border: "none", borderRadius: "4px", fontWeight: "bold", cursor: "pointer" }}
+            onClick={handleLogout}
+            style={{ padding: "8px 14px", backgroundColor: "#fff", color: "#d9534f", border: "1px solid #d9534f", borderRadius: "4px", cursor: "pointer", fontSize: "13px", fontWeight: "bold" }}
           >
-            비밀번호 확인
+            로그아웃
           </button>
-        </form>
-      ) : (
-        <form onSubmit={handleSave} style={{ padding: "15px", border: "1px solid #16a34a", borderRadius: "6px", display: "flex", flexDirection: "column", gap: "12px", backgroundColor: "#f0fdf4" }}>
-          <p style={{ fontSize: "13px", color: "#166534", margin: 0, fontWeight: "bold" }}>
-            [안전 모드 해제됨] 정보 수정이 가능합니다.
-          </p>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-            <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>아이디 (변경 불가)</label>
-            <input 
-              type="text" 
-              value={userInfo.id} 
-              disabled 
-              style={{ padding: "8px", border: "1px solid #ddd", borderRadius: "4px", backgroundColor: "#e2e8f0" }} 
-            />
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-            <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>새 비밀번호</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="변경할 비밀번호 (미입력시 유지)"
-              value={editForm.password}
-              onChange={handleChange}
-              style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-            />
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-            <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>이름</label>
-            <input
-              type="text"
-              name="name"
-              value={editForm.name}
-              onChange={handleChange}
-              style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-            />
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-            <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>성별</label>
-            <select
-              name="gender"
-              value={editForm.gender}
-              onChange={handleChange}
-              style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-            >
-              <option value="남성">남성</option>
-              <option value="여성">여성</option>
-            </select>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-            <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>거주지역</label>
-            <input
-              type="text"
-              name="residence"
-              value={editForm.residence}
-              onChange={handleChange}
-              style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-            />
-          </div>
-
-          <div style={{ display: "flex", gap: "8px" }}>
-            <button 
-              type="submit"
-              style={{ flex: 1, padding: "8px", backgroundColor: "#16a34a", color: "white", border: "none", borderRadius: "4px", fontWeight: "bold", cursor: "pointer" }}
-            >
-              저장하기
-            </button>
-            <button 
-              type="button"
-              onClick={() => { setIsUnlocked(false); setIsEditing(false); }}
-              style={{ padding: "8px 12px", backgroundColor: "#64748b", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}
-            >
-              취소
-            </button>
-          </div>
-        </form>
-      )}
-
-      {!isEditing && (
-        <div style={{ padding: "15px", border: "1px solid #ddd", borderRadius: "6px", display: "flex", flexDirection: "column", gap: "8px", backgroundColor: "#fff" }}>
-          <h3 style={{ fontSize: "15px", fontWeight: "bold", margin: "0 0 5px 0" }}>기본 회원 정보</h3>
-          <p style={{ margin: "2px 0", fontSize: "13px" }}>아이디: <strong>{userInfo.id}</strong></p>
-          <p style={{ margin: "2px 0", fontSize: "13px" }}>비밀번호: <strong>••••••••</strong> (마스킹됨)</p>
-          <p style={{ margin: "2px 0", fontSize: "13px" }}>이름: <strong>{userInfo.name || "미입력"}</strong></p>
-          <p style={{ margin: "2px 0", fontSize: "13px" }}>성별: <strong>{userInfo.gender || "미입력"}</strong></p>
-          <p style={{ margin: "2px 0", fontSize: "13px" }}>거주지역: <strong>{userInfo.residence || "미입력"}</strong></p>
         </div>
-      )}
+
+        {/* 메인 콘텐츠 그리드 레이아웃 */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          
+          {/* [좌측] 기본 회원 정보 및 수정 영역 */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            
+            {!isUnlocked ? (
+              <div style={{ backgroundColor: "#fff", padding: "24px", borderRadius: "8px", border: "1px solid #e1e2e3" }}>
+                <h3 style={{ fontSize: "15px", fontWeight: "bold", color: "#333", margin: "0 0 8px 0" }}>회원 정보 보안 인증</h3>
+                <p style={{ fontSize: "13px", color: "#666", margin: "0 0 16px 0" }}>
+                  정보를 확인하거나 수정하려면 비밀번호를 한 번 더 입력해주세요.
+                </p>
+                <form onSubmit={handleUnlock} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                  <input
+                    type="password"
+                    placeholder="현재 비밀번호 입력"
+                    value={authPassword}
+                    onChange={(e) => setAuthPassword(e.target.value)}
+                    style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none" }}
+                  />
+                  <button 
+                    type="submit"
+                    style={{ padding: "12px", backgroundColor: "#333", color: "white", border: "none", borderRadius: "4px", fontWeight: "bold", fontSize: "14px", cursor: "pointer" }}
+                  >
+                    비밀번호 확인
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <div style={{ backgroundColor: "#fff", padding: "24px", borderRadius: "8px", border: "1px solid #00c73c" }}>
+                <p style={{ fontSize: "13px", color: "#00c73c", margin: "0 0 16px 0", fontWeight: "bold" }}>
+                  [안전 모드 해제됨] 정보 수정이 가능합니다.
+                </p>
+
+                <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                    <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>아이디 (변경 불가)</label>
+                    <input type="text" value={userInfo.id} disabled style={{ padding: "10px", border: "1px solid #e1e2e3", borderRadius: "4px", backgroundColor: "#f1f3f5", color: "#666" }} />
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                    <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>새 비밀번호</label>
+                    <input type="password" name="password" placeholder="변경할 비밀번호 (미입력시 유지)" value={editForm.password} onChange={handleChange} style={{ padding: "10px", border: "1px solid #d0d5dd", borderRadius: "4px" }} />
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                    <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>이름</label>
+                    <input type="text" name="name" value={editForm.name} onChange={handleChange} style={{ padding: "10px", border: "1px solid #d0d5dd", borderRadius: "4px" }} />
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                    <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>성별</label>
+                    <select name="gender" value={editForm.gender} onChange={handleChange} style={{ padding: "10px", border: "1px solid #d0d5dd", borderRadius: "4px", backgroundColor: "#fff" }}>
+                      <option value="남성">남성</option>
+                      <option value="여성">여성</option>
+                    </select>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                    <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>거주지역</label>
+                    <input type="text" name="residence" value={editForm.residence} onChange={handleChange} style={{ padding: "10px", border: "1px solid #d0d5dd", borderRadius: "4px" }} />
+                  </div>
+
+                  <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
+                    <button type="submit" style={{ flex: 1, padding: "12px", backgroundColor: "#00c73c", color: "white", border: "none", borderRadius: "4px", fontWeight: "bold", cursor: "pointer" }}>
+                      저장하기
+                    </button>
+                    <button type="button" onClick={() => { setIsUnlocked(false); setIsEditing(false); }} style={{ padding: "12px 16px", backgroundColor: "#f1f3f5", color: "#333", border: "1px solid #d0d5dd", borderRadius: "4px", cursor: "pointer" }}>
+                      취소
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {!isEditing && (
+              <div style={{ backgroundColor: "#fff", padding: "24px", borderRadius: "8px", border: "1px solid #e1e2e3" }}>
+                <h3 style={{ fontSize: "15px", fontWeight: "bold", color: "#333", margin: "0 0 14px 0" }}>기본 회원 정보</h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px", color: "#555" }}>
+                  <p style={{ margin: "0" }}>아이디: <strong style={{ color: "#333" }}>{userInfo.id}</strong></p>
+                  <p style={{ margin: "0" }}>비밀번호: <strong style={{ color: "#333" }}>••••••••</strong> (마스킹됨)</p>
+                  <p style={{ margin: "0" }}>이름: <strong style={{ color: "#333" }}>{userInfo.name || "미입력"}</strong></p>
+                  <p style={{ margin: "0" }}>성별: <strong style={{ color: "#333" }}>{userInfo.gender || "미입력"}</strong></p>
+                  <p style={{ margin: "0" }}>거주지역: <strong style={{ color: "#333" }}>{userInfo.residence || "미입력"}</strong></p>
+                </div>
+              </div>
+            )}
+
+          </div>
+
+          {/* [우측] 나의 활동 요약 및 바로가기 */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div style={{ backgroundColor: "#fff", padding: "24px", borderRadius: "8px", border: "1px solid #e1e2e3" }}>
+              <h3 style={{ fontSize: "15px", fontWeight: "bold", color: "#333", margin: "0 0 14px 0" }}>나의 대여 활동 요약</h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 16px", backgroundColor: "#f8f9fa", borderRadius: "6px", fontSize: "14px" }}>
+                  <span>내가 등록한 물품</span>
+                  <strong style={{ color: "#00c73c" }}>{myItemsCount}건</strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 16px", backgroundColor: "#f8f9fa", borderRadius: "6px", fontSize: "14px" }}>
+                  <span>진행 중인 대여/신청</span>
+                  <strong style={{ color: "#2563eb" }}>{myRentalCount}건</strong>
+                </div>
+              </div>
+              <button
+                onClick={() => navigate("/rental")}
+                style={{ width: "100%", marginTop: "16px", padding: "12px", backgroundColor: "#f1f3f5", color: "#333", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", fontWeight: "bold", cursor: "pointer" }}
+              >
+                대여 관리 페이지로 이동하기
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
     </div>
   );
 }
+
+MyPage.displayName = "MyPage";
 
 export default MyPage;
