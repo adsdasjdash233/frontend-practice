@@ -15,7 +15,8 @@ function App() {
 
   return (
     <Router>
-      <div style={{ fontFamily: "sans-serif", maxWidth: "600px", margin: "0 auto", border: "1px solid #ddd", minHeight: "100vh" }}>
+      {/* 600px 제한과 테두리 박스를 제거하고 화면 전체 폭(width: 100%) 사용 */}
+      <div style={{ width: "100%", minHeight: "100vh", backgroundColor: "#f4f5f7", fontFamily: "sans-serif" }}>
         <Navbar isLoggedIn={isLoggedIn} />
 
         <Routes>
