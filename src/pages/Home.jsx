@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { formatDate } from '../utils/dateUtils'; // 날짜 유틸 임포트
 
 function Home() {
   const navigate = useNavigate();
@@ -8,6 +9,9 @@ function Home() {
 
   const [items, setItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // 물품 상세 보기 모달을 위한 상태 관리
+  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
     const savedItems = JSON.parse(localStorage.getItem("items")) || [];
@@ -24,6 +28,26 @@ function Home() {
         (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()))
       );
 
+  // 물품 카드 클릭 시 조회수(viewCount) 증가 및 상세 모달 오픈
+  const handleSelectItem = (item) => {
+    const updatedItems = items.map(i => {
+      if (i.id === item.id) {
+        return {
+          ...i,
+          viewCount: (i.viewCount || 0) + 1
+        };
+      }
+      return i;
+    });
+
+    setItems(updatedItems);
+    localStorage.setItem("items", JSON.stringify(updatedItems));
+    
+    // 선택된 물품 정보 갱신하여 모달 오픈
+    const clickedItem = updatedItems.find(i => i.id === item.id);
+    setSelectedItem(clickedItem);
+  };
+
   const handleRequestRental = (itemId) => {
     if (!isLoggedIn) {
       alert("로그인이 필요합니다.");
@@ -34,7 +58,7 @@ function Home() {
     const updatedItems = items.map(item => {
       if (item.id === itemId) {
         if (item.owner === currentUser) {
-          alert("보인이 등록한 물품은 본인이 대여할 수 없습니다.");
+          alert("본인이 등록한 물품은 본인이 대여할 수 없습니다.");
           return item;
         }
         return {
@@ -48,6 +72,7 @@ function Home() {
 
     setItems(updatedItems);
     localStorage.setItem("items", JSON.stringify(updatedItems));
+    setSelectedItem(null); // 모달 닫기
     alert("대여 신청이 완료되었습니다.");
     navigate("/rental");
   };
@@ -96,7 +121,11 @@ function Home() {
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {displayedItems.map(item => (
-                  <div key={item.id} style={{ padding: "16px", border: "1px solid #e5e8eb", borderRadius: "6px", display: "flex", flexDirection: "column", gap: "8px", backgroundColor: "#fff" }}>
+                  <div 
+                    key={item.id} 
+                    onClick={() => handleSelectItem(item)} // 카드 클릭 시 조회수 증가 및 상세 모달 오픈
+                    style={{ padding: "16px", border: "1px solid #e5e8eb", borderRadius: "6px", display: "flex", flexDirection: "column", gap: "8px", backgroundColor: "#fff", cursor: "pointer", transition: "border-color 0.2s" }}
+                  >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <span style={{ fontSize: "11px", color: "#666", backgroundColor: "#f1f3f5", padding: "2px 6px", borderRadius: "4px" }}>
                         {item.category}
@@ -105,7 +134,15 @@ function Home() {
                     </div>
                     <div>
                       <h4 style={{ fontSize: "15px", fontWeight: "bold", margin: "0 0 4px 0", color: "#333" }}>{item.title}</h4>
-                      <p style={{ fontSize: "13px", color: "#666", margin: "0 0 6px 0" }}>{item.description}</p>
+                      <p style={{ fontSize: "13px", color: "#666", margin: "0 0 6px 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description}</p>
+                      
+                      {/* ERD 기준 등록일시 및 조회수 표기 */}
+                      <div style={{ fontSize: "11px", color: "#888", display: "flex", gap: "10px", marginBottom: "6px" }}>
+                        <span>등록: {formatDate(item.createdAt)}</span>
+                        <span>·</span>
+                        <span>조회수 {item.viewCount || 0}</span>
+                      </div>
+
                       <div style={{ fontSize: "14px", fontWeight: "bold", color: "#333" }}>
                         {Number(item.pricePerDay).toLocaleString()}원 <span style={{ fontSize: "12px", fontWeight: "normal", color: "#888" }}>/ 1일</span>
                       </div>
@@ -114,7 +151,10 @@ function Home() {
                       <span style={{ fontSize: "12px", color: "#888" }}>등록자: {item.owner}</span>
                       {item.owner !== currentUser ? (
                         <button
-                          onClick={() => handleRequestRental(item.id)}
+                          onClick={(e) => {
+                            e.stopPropagation(); // 카드 클릭 이벤트 버블링 방지
+                            handleRequestRental(item.id);
+                          }}
                           style={{ padding: "6px 12px", backgroundColor: "#333", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" }}
                         >
                           대여 신청
@@ -184,13 +224,72 @@ function Home() {
 
           <div style={{ backgroundColor: "#fff", padding: "20px", borderRadius: "8px", border: "1px solid #e1e2e3", fontSize: "13px", color: "#666", lineHeight: "1.5" }}>
             <strong style={{ color: "#333", display: "block", marginBottom: "6px" }}>안내</strong>
-            - 대여 가능한 물품만 표시됩니다.<br />
-            - 예약 및 대여 중인 항목은 검색 결과에 나타나지 않습니다.<br />
+- 대여 가능한 물품만 표시됩니다.<br />
+- 예약 및 대여 중인 항목은 검색 결과에 나타나지 않습니다.<br />
+- 물품 카드를 클릭하면 상세 내용과 조회수가 증가합니다.<br />
           </div>
 
         </div>
 
       </div>
+
+      {/* 물품 상세 보기 모달 (조회수 연동) */}
+      {selectedItem && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 }}>
+          <div style={{ backgroundColor: "#fff", width: "100%", maxWidth: "500px", padding: "24px", borderRadius: "8px", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "12px", color: "#666", backgroundColor: "#f1f3f5", padding: "3px 8px", borderRadius: "4px" }}>
+                {selectedItem.category}
+              </span>
+              <button 
+                onClick={() => setSelectedItem(null)}
+                style={{ background: "none", border: "none", fontSize: "18px", cursor: "pointer", color: "#888" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div>
+              <h3 style={{ fontSize: "18px", fontWeight: "bold", color: "#333", margin: "0 0 8px 0" }}>{selectedItem.title}</h3>
+              <div style={{ fontSize: "12px", color: "#888", display: "flex", gap: "10px", marginBottom: "14px" }}>
+                <span>등록자: {selectedItem.owner}</span>
+                <span>·</span>
+                <span>등록일: {formatDate(selectedItem.createdAt)}</span>
+                <span>·</span>
+                <span>조회수: {selectedItem.viewCount}</span>
+              </div>
+              <p style={{ fontSize: "14px", color: "#444", lineHeight: "1.6", whiteSpace: "pre-wrap", backgroundColor: "#f8f9fa", padding: "14px", borderRadius: "6px", minHeight: "80px", margin: "0 0 14px 0" }}>
+                {selectedItem.description || "등록된 상세 설명이 없습니다."}
+              </p>
+              <div style={{ fontSize: "16px", fontWeight: "bold", color: "#00c73c" }}>
+                {Number(selectedItem.pricePerDay).toLocaleString()}원 <span style={{ fontSize: "13px", fontWeight: "normal", color: "#666" }}>/ 1일</span>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
+              {selectedItem.owner !== currentUser ? (
+                <button
+                  onClick={() => handleRequestRental(selectedItem.id)}
+                  style={{ flex: 1, padding: "12px", backgroundColor: "#00c73c", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "14px", fontWeight: "bold" }}
+                >
+                  대여 신청하기
+                </button>
+              ) : (
+                <div style={{ flex: 1, textAlign: "center", padding: "12px", backgroundColor: "#f1f3f5", color: "#666", borderRadius: "4px", fontSize: "14px" }}>
+                  내가 등록한 물품입니다.
+                </div>
+              )}
+              <button
+                onClick={() => setSelectedItem(null)}
+                style={{ padding: "12px 16px", backgroundColor: "#f1f3f5", color: "#333", border: "1px solid #d0d5dd", borderRadius: "4px", cursor: "pointer", fontSize: "14px" }}
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

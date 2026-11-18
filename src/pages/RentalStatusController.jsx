@@ -1,6 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+// ISO 타임스탬프를 보기 쉬운 한국어 형식(YYYY-MM-DD HH:mm)으로 변환하는 유틸리티 함수
+const formatDate = (isoString) => {
+  if (!isoString) return "-";
+  const date = new Date(isoString);
+  
+  if (isNaN(date.getTime())) return isoString;
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}`;
+};
+
 function RentalStatusController() {
   const navigate = useNavigate();
   const currentUser = localStorage.getItem("currentUser");
@@ -123,6 +139,13 @@ function RentalStatusController() {
                       대여자: <strong>{item.renter || "없음"}</strong> {isRenter && <span style={{ color: "#2563eb", fontWeight: "bold" }}>(나)</span>}
                     </p>
                     <p style={{ margin: "6px 0 0 0", color: "#666" }}>{item.description}</p>
+
+                    {/* ERD 타임스탬프 정보 표기 영역 추가 */}
+                    <div style={{ marginTop: "8px", fontSize: "11px", color: "#888", display: "flex", gap: "12px", borderTop: "1px dashed #f1f3f5", paddingTop: "6px" }}>
+                      <span>등록일시: {formatDate(item.createdAt)}</span>
+                      {item.rentedAt && <span>대여시작: {formatDate(item.rentedAt)}</span>}
+                      {item.returnedAt && <span>반납완료: {formatDate(item.returnedAt)}</span>}
+                    </div>
                   </div>
 
                   {/* 상태별 액션 버튼 영역 */}
@@ -223,5 +246,7 @@ function RentalStatusController() {
     </div>
   );
 }
+
+RentalStatusController.displayName = "RentalStatusController";
 
 export default RentalStatusController;
