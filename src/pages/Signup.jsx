@@ -34,6 +34,17 @@ function Signup() {
     navigate("/login");
   };
 
+  const inputStyle = {
+    padding: "12px 14px",
+    border: "1px solid #d0d5dd",
+    borderRadius: "4px",
+    fontSize: "14px",
+    color: "#333",
+    backgroundColor: "#fff",
+    outline: "none",
+    boxSizing: "border-box"
+  };
+
   return (
     <div style={{ backgroundColor: "#f4f5f7", minHeight: "calc(100vh - 53px)", padding: "60px 20px", fontFamily: "sans-serif", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
       <div style={{ width: "100%", maxWidth: "420px", backgroundColor: "#fff", padding: "32px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box" }}>
@@ -50,7 +61,7 @@ function Signup() {
               placeholder="사용할 아이디를 입력하세요"
               value={id}
               onChange={(e) => setId(e.target.value)}
-              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
+              style={inputStyle}
               required
             />
           </div>
@@ -62,7 +73,7 @@ function Signup() {
               placeholder="비밀번호를 입력하세요"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
+              style={inputStyle}
               required
             />
           </div>
@@ -74,21 +85,38 @@ function Signup() {
               placeholder="이름을 입력하세요"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
+              style={inputStyle}
               required
             />
           </div>
 
+          {/* 네이티브 select 드롭다운 겹침 방지를 위한 선택 버튼 그룹 */}
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
             <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>성별</label>
-            <select
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
-              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none", backgroundColor: "#fff", boxSizing: "border-box" }}
-            >
-              <option value="남성">남성</option>
-              <option value="여성">여성</option>
-            </select>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+              {["남성", "여성"].map((option) => {
+                const isSelected = gender === option;
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setGender(option)}
+                    style={{
+                      padding: "11px 14px",
+                      borderRadius: "4px",
+                      border: isSelected ? "1px solid #00c73c" : "1px solid #d0d5dd",
+                      backgroundColor: isSelected ? "#e8fbf0" : "#fff",
+                      color: isSelected ? "#009e2f" : "#333",
+                      fontSize: "14px",
+                      fontWeight: isSelected ? "bold" : "normal",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
@@ -98,7 +126,7 @@ function Signup() {
               placeholder="거주지역 (예: 대구 북구)"
               value={residence}
               onChange={(e) => setResidence(e.target.value)}
-              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
+              style={inputStyle}
               required
             />
           </div>

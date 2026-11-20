@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { formatDate } from '../utils/dateUtils'; // 날짜 유틸 임포트
 
+const CATEGORIES = ['전체', '전자기기', '서적/교재', '캠핑/레저', '생활용품', '기타'];
+
 function Home() {
   const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
@@ -9,7 +11,8 @@ function Home() {
 
   const [items, setItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  
+  const [selectedCategory, setSelectedCategory] = useState('전체');
+
   // 물품 상세 보기 모달을 위한 상태 관리
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -20,13 +23,17 @@ function Home() {
 
   const availableItems = items.filter(item => item.status === 'AVAILABLE');
 
-  // 검색어가 있을 경우 검색 필터링 적용
-  const displayedItems = searchTerm.trim() === "" 
-    ? availableItems 
-    : availableItems.filter(item => 
-        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
+  // 카테고리 및 검색어 필터링 적용
+  const displayedItems = availableItems.filter(item => {
+    const matchesCategory = selectedCategory === '전체' || item.category === selectedCategory;
+    const keyword = searchTerm.trim().toLowerCase();
+    const matchesSearch =
+      keyword === '' ||
+      item.title.toLowerCase().includes(keyword) ||
+      (item.description && item.description.toLowerCase().includes(keyword));
+
+    return matchesCategory && matchesSearch;
+  });
 
   // 물품 카드 클릭 시 조회수(viewCount) 증가 및 상세 모달 오픈
   const handleSelectItem = (item) => {
@@ -42,7 +49,7 @@ function Home() {
 
     setItems(updatedItems);
     localStorage.setItem("items", JSON.stringify(updatedItems));
-    
+
     // 선택된 물품 정보 갱신하여 모달 오픈
     const clickedItem = updatedItems.find(i => i.id === item.id);
     setSelectedItem(clickedItem);
@@ -89,10 +96,10 @@ function Home() {
       {/* 전체 와이드 레이아웃 */}
       <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", display: "flex", gap: "20px", padding: "0 20px", boxSizing: "border-box" }}>
         
-        {/* [좌측 영역] 검색 바 + 통합 물품 리스트 */}
+        {/* [좌측 영역] 검색 바 + 카테고리 필터 + 통합 물품 리스트 */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "16px", minWidth: 0 }}>
           
-          {/* 1. 상단 검색 영역 */}
+          {/* 1. 상단 검색 및 카테고리 필터 영역 */}
           <div style={{ backgroundColor: "#fff", padding: "20px 24px", borderRadius: "8px", border: "1px solid #e1e2e3" }}>
             <h2 style={{ fontSize: "16px", fontWeight: "bold", color: "#333", margin: "0 0 4px 0" }}>캠퍼스 물품 대여</h2>
             <p style={{ fontSize: "13px", color: "#666", margin: "0 0 14px 0" }}>현재 대여 가능한 공개 물품을 검색하고 대여해 보세요.</p>
@@ -102,21 +109,51 @@ function Home() {
               placeholder="찾고 싶은 물품명을 입력하세요"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ width: "100%", padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", boxSizing: "border-box", outline: "none" }}
+              style={{ width: "100%", padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", boxSizing: "border-box", outline: "none", marginBottom: "14px" }}
             />
+
+            {/* 카테고리 필터 버튼 영역 */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+              {CATEGORIES.map(category => {
+                const isActive = selectedCategory === category;
+                return (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => setSelectedCategory(category)}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "20px",
+                      border: isActive ? "1px solid #00c73c" : "1px solid #d0d5dd",
+                      backgroundColor: isActive ? "#00c73c" : "#fff",
+                      color: isActive ? "#fff" : "#444",
+                      fontSize: "12px",
+                      fontWeight: isActive ? "bold" : "normal",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {category}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* 2. 대여 가능 물품 리스트 (검색어 입력 시 결과 카운트 표시) */}
+          {/* 2. 대여 가능 물품 리스트 (검색어/카테고리 입력 시 결과 카운트 표시) */}
           <div style={{ backgroundColor: "#fff", padding: "20px 24px", borderRadius: "8px", border: "1px solid #e1e2e3" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
               <h3 style={{ fontSize: "15px", fontWeight: "bold", margin: 0, color: "#333" }}>
-                {searchTerm.trim() !== "" ? `검색 결과 (${displayedItems.length}건)` : "전체 대여 가능 물품 리스트"}
+                {selectedCategory === '전체' && searchTerm.trim() === ""
+                  ? `전체 대여 가능 물품 리스트 (${displayedItems.length}건)`
+                  : `${selectedCategory} 필터 결과 (${displayedItems.length}건)`}
               </h3>
             </div>
             
             {displayedItems.length === 0 ? (
               <div style={{ textAlign: "center", padding: "50px 0", color: "#888", fontSize: "13px" }}>
-                {searchTerm.trim() !== "" ? "일치하는 검색 결과가 없습니다." : "현재 대여 가능한 물품이 없습니다."}
+                {selectedCategory !== '전체' || searchTerm.trim() !== ""
+                  ? "일치하는 검색 결과가 없습니다."
+                  : "현재 대여 가능한 물품이 없습니다."}
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -225,7 +262,7 @@ function Home() {
           <div style={{ backgroundColor: "#fff", padding: "20px", borderRadius: "8px", border: "1px solid #e1e2e3", fontSize: "13px", color: "#666", lineHeight: "1.5" }}>
             <strong style={{ color: "#333", display: "block", marginBottom: "6px" }}>안내</strong>
 - 대여 가능한 물품만 표시됩니다.<br />
-- 예약 및 대여 중인 항목은 검색 결과에 나타나지 않습니다.<br />
+- 카테고리와 검색어로 원하는 물품을 좁혀볼 수 있습니다.<br />
 - 물품 카드를 클릭하면 상세 내용과 조회수가 증가합니다.<br />
           </div>
 

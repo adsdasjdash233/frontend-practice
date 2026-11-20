@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const ITEM_CATEGORIES = ['전자기기', '서적/교재', '캠핑/레저', '생활용품', '기타'];
+
 function ItemRegisterForm() {
   const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
@@ -50,12 +52,24 @@ function ItemRegisterForm() {
     navigate("/");
   };
 
+  const fieldStyle = {
+    padding: "12px 14px",
+    border: "1px solid #d0d5dd",
+    borderRadius: "4px",
+    fontSize: "14px",
+    color: "#333",
+    backgroundColor: "#fff",
+    outline: "none",
+    boxSizing: "border-box",
+    width: "100%"
+  };
+
   return (
     <div style={{ backgroundColor: "#f4f5f7", minHeight: "calc(100vh - 53px)", padding: "40px 20px", fontFamily: "sans-serif", boxSizing: "border-box" }}>
-      <div style={{ maxWidth: "700px", margin: "0 auto", backgroundColor: "#fff", padding: "32px", borderRadius: "8px", border: "1px solid #e1e2e3" }}>
+      <div style={{ maxWidth: "700px", margin: "0 auto", backgroundColor: "#fff", padding: "32px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box" }}>
         
-        <h2 style={{ fontSize: "20px", fontWeight: "bold", color: "#333", marginBottom: "8px" }}>캠퍼스 물품 등록</h2>
-        <p style={{ fontSize: "13px", color: "#666", marginBottom: "24px" }}>대여 가능한 물품 정보를 정확하게 입력해 주세요.</p>
+        <h2 style={{ fontSize: "20px", fontWeight: "bold", color: "#333", margin: "0 0 8px 0" }}>캠퍼스 물품 등록</h2>
+        <p style={{ fontSize: "13px", color: "#666", margin: "0 0 24px 0" }}>대여 가능한 물품 정보를 정확하게 입력해 주세요.</p>
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           
@@ -73,7 +87,7 @@ function ItemRegisterForm() {
               placeholder="예: 공학용 계산기 TI-nspire CX II"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none" }}
+              style={fieldStyle}
               required
             />
           </div>
@@ -86,25 +100,38 @@ function ItemRegisterForm() {
               placeholder="숫자만 입력하세요 (예: 3000)"
               value={pricePerDay}
               onChange={(e) => setPricePerDay(e.target.value)}
-              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none" }}
+              style={fieldStyle}
               required
             />
           </div>
 
-          {/* 카테고리 */}
+          {/* 카테고리 (드롭다운 겹침 방지를 위한 선택 버튼 그룹) */}
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
             <label style={{ fontSize: "13px", fontWeight: "bold", color: "#333" }}>카테고리</label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none", backgroundColor: "#fff" }}
-            >
-              <option value="전자기기">전자기기</option>
-              <option value="서적/교재">서적/교재</option>
-              <option value="캠핑/레저">캠핑/레저</option>
-              <option value="생활용품">생활용품</option>
-              <option value="기타">기타</option>
-            </select>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+              {ITEM_CATEGORIES.map((cat) => {
+                const isSelected = category === cat;
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setCategory(cat)}
+                    style={{
+                      padding: "9px 14px",
+                      borderRadius: "4px",
+                      border: isSelected ? "1px solid #00c73c" : "1px solid #d0d5dd",
+                      backgroundColor: isSelected ? "#e8fbf0" : "#fff",
+                      color: isSelected ? "#009e2f" : "#333",
+                      fontSize: "13px",
+                      fontWeight: isSelected ? "bold" : "normal",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* 물품 설명 */}
@@ -115,14 +142,14 @@ function ItemRegisterForm() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows="5"
-              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none", resize: "vertical" }}
+              style={{ ...fieldStyle, resize: "vertical" }}
             />
           </div>
 
           {/* 제출 버튼 */}
           <button
             type="submit"
-            style={{ padding: "14px", backgroundColor: "#00c73c", color: "white", border: "none", borderRadius: "4px", fontWeight: "bold", fontSize: "15px", cursor: "pointer", marginTop: "10px" }}
+            style={{ width: "100%", padding: "14px", backgroundColor: "#00c73c", color: "white", border: "none", borderRadius: "4px", fontWeight: "bold", fontSize: "15px", cursor: "pointer", marginTop: "10px" }}
           >
             등록하기
           </button>
