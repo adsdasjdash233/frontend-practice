@@ -8,7 +8,13 @@ function Login({ setIsLoggedIn }) {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    
+
+    const trimmedId = id.trim();
+    if (!trimmedId || !password) {
+      alert("아이디와 비밀번호를 입력해주세요.");
+      return;
+    }
+
     // 가입된 전체 회원 목록 조회
     const users = JSON.parse(localStorage.getItem("users")) || [];
 
@@ -18,7 +24,7 @@ function Login({ setIsLoggedIn }) {
     }
 
     // 1. 아이디 존재 여부 확인
-    const foundUser = users.find(user => user.id === id);
+    const foundUser = users.find(user => user.id === trimmedId);
 
     if (!foundUser) {
       alert("존재하지 않는 아이디입니다.");
@@ -33,23 +39,37 @@ function Login({ setIsLoggedIn }) {
 
     // 3. 로그인 성공
     alert("로그인 성공!");
-    setIsLoggedIn(true);
+    if (typeof setIsLoggedIn === "function") {
+      setIsLoggedIn(true);
+    }
     localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("currentUser", id);
-    
-    // 홈 또는 마이페이지로 이동
+    localStorage.setItem("currentUser", foundUser.id);
+
+    // 홈으로 이동
     navigate("/");
+  };
+
+  const inputStyle = {
+    padding: "12px 14px",
+    border: "1px solid #d0d5dd",
+    borderRadius: "4px",
+    fontSize: "14px",
+    color: "#333",
+    backgroundColor: "#fff",
+    outline: "none",
+    boxSizing: "border-box",
+    width: "100%"
   };
 
   return (
     <div style={{ backgroundColor: "#f4f5f7", minHeight: "calc(100vh - 53px)", padding: "60px 20px", fontFamily: "sans-serif", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
       <div style={{ width: "100%", maxWidth: "420px", backgroundColor: "#fff", padding: "32px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box" }}>
-        
+
         <h2 style={{ fontSize: "20px", fontWeight: "bold", color: "#333", margin: "0 0 6px 0", textAlign: "center" }}>Everrent 로그인</h2>
         <p style={{ fontSize: "13px", color: "#666", margin: "0 0 24px 0", textAlign: "center" }}>캠퍼스 물품 대여 서비스에 로그인하세요.</p>
 
         <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          
+
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
             <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>아이디</label>
             <input
@@ -57,7 +77,7 @@ function Login({ setIsLoggedIn }) {
               placeholder="아이디를 입력하세요"
               value={id}
               onChange={(e) => setId(e.target.value)}
-              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
+              style={inputStyle}
               required
             />
           </div>
@@ -69,14 +89,14 @@ function Login({ setIsLoggedIn }) {
               placeholder="비밀번호를 입력하세요"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ padding: "12px 14px", border: "1px solid #d0d5dd", borderRadius: "4px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
+              style={inputStyle}
               required
             />
           </div>
 
-          <button 
-            type="submit" 
-            style={{ width: "100%", padding: "14px", backgroundColor: "#00c73c", color: "white", border: "none", borderRadius: "4px", fontWeight: "bold", fontSize: "15px", cursor: "pointer", marginTop: "8px" }}
+          <button
+            type="submit"
+            style={{ width: "100%", padding: "14px", backgroundColor: "#00c73c", color: "#fff", border: "none", borderRadius: "4px", fontWeight: "bold", fontSize: "15px", cursor: "pointer", marginTop: "8px" }}
           >
             로그인
           </button>

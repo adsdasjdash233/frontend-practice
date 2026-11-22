@@ -1,21 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-// ISO 타임스탬프를 보기 쉬운 한국어 형식(YYYY-MM-DD HH:mm)으로 변환하는 유틸리티 함수
-const formatDate = (isoString) => {
-  if (!isoString) return "-";
-  const date = new Date(isoString);
-  
-  if (isNaN(date.getTime())) return isoString;
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
-};
+import { formatDate } from '../utils/dateUtils';
 
 function RentalStatusController() {
   const navigate = useNavigate();
@@ -87,29 +72,40 @@ function RentalStatusController() {
     RETURNED: '반납 완료'
   };
 
+  const secondaryBtnStyle = {
+    padding: "6px 12px",
+    backgroundColor: "#fff",
+    color: "#333",
+    border: "1px solid #d0d5dd",
+    borderRadius: "4px",
+    cursor: "pointer",
+    fontSize: "12px",
+    fontWeight: "bold"
+  };
+
   // 로그인한 사용자와 관련 있는(내가 등록했거나 대여 중/신청한) 내역만 필터링
   const myRelatedItems = items.filter(
     item => item.owner === currentUser || item.renter === currentUser
   );
 
   return (
-    <div style={{ backgroundColor: "#f4f5f7", minHeight: "calc(100vh - 53px)", padding: "24px 0 40px 0", fontFamily: "sans-serif" }}>
+    <div style={{ backgroundColor: "#f4f5f7", minHeight: "calc(100vh - 53px)", padding: "24px 0 40px 0", fontFamily: "sans-serif", boxSizing: "border-box" }}>
       <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "0 20px", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "16px" }}>
-        
+
         {/* 상단 헤더 카드 */}
-        <div style={{ backgroundColor: "#fff", padding: "20px 24px", borderRadius: "8px", border: "1px solid #e1e2e3", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ backgroundColor: "#fff", padding: "20px 24px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h2 style={{ fontSize: "18px", fontWeight: "bold", color: "#333", margin: "0 0 4px 0" }}>내 대여/등록 관리</h2>
             <p style={{ fontSize: "13px", color: "#666", margin: 0 }}>등록한 물품의 예약 승인 및 대여 중인 물품의 반납 상태를 관리합니다.</p>
           </div>
-          <span style={{ fontSize: "13px", backgroundColor: "#f1f3f5", color: "#333", padding: "6px 12px", borderRadius: "4px", border: "1px solid #e5e8eb" }}>
+          <span style={{ fontSize: "13px", backgroundColor: "#f8f9fa", color: "#333", padding: "6px 12px", borderRadius: "4px", border: "1px solid #e1e2e3" }}>
             접속 계정: <strong>{currentUser}</strong>
           </span>
         </div>
 
         {/* 물품 상태 리스트 */}
         {myRelatedItems.length === 0 ? (
-          <div style={{ backgroundColor: "#fff", padding: "60px 20px", borderRadius: "8px", border: "1px solid #e1e2e3", textAlign: "center", color: "#888", fontSize: "14px" }}>
+          <div style={{ backgroundColor: "#fff", padding: "60px 20px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box", textAlign: "center", color: "#888", fontSize: "14px" }}>
             관련된 대여 내역이나 등록한 물품이 없습니다.
           </div>
         ) : (
@@ -119,7 +115,7 @@ function RentalStatusController() {
               const isRenter = item.renter === currentUser;
 
               return (
-                <div key={item.id} style={{ padding: "20px 24px", border: "1px solid #e1e2e3", borderRadius: "8px", display: "flex", flexDirection: "column", gap: "10px", backgroundColor: "#fff" }}>
+                <div key={item.id} style={{ padding: "20px 24px", border: "1px solid #e1e2e3", borderRadius: "8px", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "10px", backgroundColor: "#fff" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                       <span style={{ fontSize: "11px", color: "#666", backgroundColor: "#f1f3f5", padding: "2px 6px", borderRadius: "4px" }}>
@@ -133,15 +129,15 @@ function RentalStatusController() {
                   </div>
 
                   <div style={{ fontSize: "13px", color: "#555", lineHeight: "1.6" }}>
-                    <p style={{ margin: "2px 0" }}>1일 대여료: <strong>{Number(item.pricePerDay).toLocaleString()}원</strong></p>
+                    <p style={{ margin: "2px 0" }}>1일 대여료: <strong style={{ color: "#333" }}>{Number(item.pricePerDay).toLocaleString()}원</strong></p>
                     <p style={{ margin: "2px 0" }}>
-                      소유자: <strong>{item.owner}</strong> {isOwner && <span style={{ color: "#00c73c", fontWeight: "bold" }}>(나)</span>} |{" "}
-                      대여자: <strong>{item.renter || "없음"}</strong> {isRenter && <span style={{ color: "#2563eb", fontWeight: "bold" }}>(나)</span>}
+                      소유자: <strong style={{ color: "#333" }}>{item.owner}</strong> {isOwner && <span style={{ color: "#00c73c", fontWeight: "bold" }}>(나)</span>} |{" "}
+                      대여자: <strong style={{ color: "#333" }}>{item.renter || "없음"}</strong> {isRenter && <span style={{ color: "#2563eb", fontWeight: "bold" }}>(나)</span>}
                     </p>
                     <p style={{ margin: "6px 0 0 0", color: "#666" }}>{item.description}</p>
 
-                    {/* ERD 타임스탬프 정보 표기 영역 추가 */}
-                    <div style={{ marginTop: "8px", fontSize: "11px", color: "#888", display: "flex", gap: "12px", borderTop: "1px dashed #f1f3f5", paddingTop: "6px" }}>
+                    {/* ERD 타임스탬프 정보 표기 영역 */}
+                    <div style={{ marginTop: "8px", fontSize: "11px", color: "#888", display: "flex", flexWrap: "wrap", gap: "12px", borderTop: "1px dashed #e1e2e3", paddingTop: "6px" }}>
                       <span>등록일시: {formatDate(item.createdAt)}</span>
                       {item.rentedAt && <span>대여시작: {formatDate(item.rentedAt)}</span>}
                       {item.returnedAt && <span>반납완료: {formatDate(item.returnedAt)}</span>}
@@ -149,18 +145,20 @@ function RentalStatusController() {
                   </div>
 
                   {/* 상태별 액션 버튼 영역 */}
-                  <div style={{ marginTop: "6px", paddingTop: "12px", borderTop: "1px solid #f1f3f5", display: "flex", alignItems: "center", gap: "8px" }}>
-                    
+                  <div style={{ marginTop: "6px", paddingTop: "12px", borderTop: "1px solid #f1f3f5", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px" }}>
+
                     {/* 1. 예약 신청됨 (REQUESTED) */}
                     {item.status === 'REQUESTED' && isOwner && (
                       <>
                         <button
+                          type="button"
                           onClick={() => updateItemStatus(item.id, 'APPROVED')}
-                          style={{ padding: "8px 14px", backgroundColor: "#00c73c", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "13px", fontWeight: "bold" }}
+                          style={{ padding: "8px 14px", backgroundColor: "#00c73c", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "13px", fontWeight: "bold" }}
                         >
                           대여 승인하기 ({item.renter}님 예약)
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleCancelOrReject(item.id, true)}
                           style={{ padding: "8px 14px", backgroundColor: "#fff", color: "#d9534f", border: "1px solid #d9534f", borderRadius: "4px", cursor: "pointer", fontSize: "13px" }}
                         >
@@ -169,11 +167,12 @@ function RentalStatusController() {
                       </>
                     )}
                     {item.status === 'REQUESTED' && isRenter && (
-                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "12px" }}>
                         <span style={{ fontSize: "13px", color: "#d97706", fontWeight: "bold" }}>소유자({item.owner})의 예약 승인을 기다리는 중입니다.</span>
                         <button
+                          type="button"
                           onClick={() => handleCancelOrReject(item.id, false)}
-                          style={{ padding: "6px 12px", backgroundColor: "#fff", color: "#666", border: "1px solid #d0d5dd", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}
+                          style={{ ...secondaryBtnStyle, fontWeight: "normal", color: "#666" }}
                         >
                           신청 취소
                         </button>
@@ -183,8 +182,9 @@ function RentalStatusController() {
                     {/* 2. 대여 승인됨 (APPROVED) */}
                     {item.status === 'APPROVED' && (isOwner || isRenter) && (
                       <button
+                        type="button"
                         onClick={() => updateItemStatus(item.id, 'RENTED')}
-                        style={{ padding: "8px 14px", backgroundColor: "#2563eb", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "13px", fontWeight: "bold" }}
+                        style={{ padding: "8px 14px", backgroundColor: "#2563eb", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "13px", fontWeight: "bold" }}
                       >
                         물품 수령 및 대여 시작
                       </button>
@@ -193,8 +193,9 @@ function RentalStatusController() {
                     {/* 3. 대여 중 (RENTED) */}
                     {item.status === 'RENTED' && isRenter && (
                       <button
+                        type="button"
                         onClick={() => updateItemStatus(item.id, 'RETURN_REQUESTED')}
-                        style={{ padding: "8px 14px", backgroundColor: "#d97706", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "13px", fontWeight: "bold" }}
+                        style={{ padding: "8px 14px", backgroundColor: "#d97706", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "13px", fontWeight: "bold" }}
                       >
                         반납 신청하기
                       </button>
@@ -206,8 +207,9 @@ function RentalStatusController() {
                     {/* 4. 반납 신청됨 (RETURN_REQUESTED) */}
                     {item.status === 'RETURN_REQUESTED' && isOwner && (
                       <button
+                        type="button"
                         onClick={() => updateItemStatus(item.id, 'RETURNED')}
-                        style={{ padding: "8px 14px", backgroundColor: "#9333ea", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "13px", fontWeight: "bold" }}
+                        style={{ padding: "8px 14px", backgroundColor: "#9333ea", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "13px", fontWeight: "bold" }}
                       >
                         반납 확인 및 완료 처리
                       </button>
@@ -216,14 +218,15 @@ function RentalStatusController() {
                       <span style={{ fontSize: "13px", color: "#666" }}>소유자({item.owner})의 반납 확인을 기다리는 중입니다.</span>
                     )}
 
-                    {/* 5. 반납 완료 (RETURNED) -> 재대여 활성화 옵션 추가 */}
+                    {/* 5. 반납 완료 (RETURNED) -> 재대여 활성화 옵션 */}
                     {item.status === 'RETURNED' && (
-                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "12px" }}>
                         <span style={{ fontSize: "13px", fontWeight: "bold", color: "#16a34a" }}>대여 및 반납이 완료된 거래입니다.</span>
                         {isOwner && (
                           <button
+                            type="button"
                             onClick={() => updateItemStatus(item.id, 'AVAILABLE', null)}
-                            style={{ padding: "6px 12px", backgroundColor: "#f8f9fa", color: "#333", border: "1px solid #d0d5dd", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" }}
+                            style={secondaryBtnStyle}
                           >
                             다시 대여 가능으로 전환
                           </button>
