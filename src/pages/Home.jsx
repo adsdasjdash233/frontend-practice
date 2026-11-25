@@ -1,19 +1,21 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { formatDate } from '../utils/dateUtils'; // 날짜 유틸 임포트
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { formatDate } from "../utils/dateUtils";
+import { useWindowWidth } from "../hooks/useWindowWidth";
 
-const CATEGORIES = ['전체', '전자기기', '서적/교재', '캠핑/레저', '생활용품', '기타'];
+const CATEGORIES = ["전체", "전자기기", "서적/교재", "캠핑/레저", "생활용품", "기타"];
 
 function Home() {
   const navigate = useNavigate();
+  const { isMobile, isTablet } = useWindowWidth();
+  const isCompact = isMobile || isTablet;
+
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
   const currentUser = localStorage.getItem("currentUser");
 
   const [items, setItems] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('전체');
-
-  // 물품 상세 보기 모달을 위한 상태 관리
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("전체");
   const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
@@ -24,35 +26,33 @@ function Home() {
   useEffect(() => {
     if (!selectedItem) return;
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         setSelectedItem(null);
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedItem]);
 
-  const availableItems = items.filter(item => item.status === 'AVAILABLE');
+  const availableItems = items.filter((item) => item.status === "AVAILABLE");
 
-  // 카테고리 및 검색어 필터링 적용
-  const displayedItems = availableItems.filter(item => {
-    const matchesCategory = selectedCategory === '전체' || item.category === selectedCategory;
+  const displayedItems = availableItems.filter((item) => {
+    const matchesCategory = selectedCategory === "전체" || item.category === selectedCategory;
     const keyword = searchTerm.trim().toLowerCase();
     const matchesSearch =
-      keyword === '' ||
+      keyword === "" ||
       item.title.toLowerCase().includes(keyword) ||
       (item.description && item.description.toLowerCase().includes(keyword));
 
     return matchesCategory && matchesSearch;
   });
 
-  // 물품 카드 클릭 시 조회수(viewCount) 증가 및 상세 모달 오픈
   const handleSelectItem = (item) => {
-    const updatedItems = items.map(i => {
+    const updatedItems = items.map((i) => {
       if (i.id === item.id) {
         return {
           ...i,
-          viewCount: (i.viewCount || 0) + 1
+          viewCount: (i.viewCount || 0) + 1,
         };
       }
       return i;
@@ -61,8 +61,7 @@ function Home() {
     setItems(updatedItems);
     localStorage.setItem("items", JSON.stringify(updatedItems));
 
-    // 선택된 물품 정보 갱신하여 모달 오픈
-    const clickedItem = updatedItems.find(i => i.id === item.id);
+    const clickedItem = updatedItems.find((i) => i.id === item.id);
     setSelectedItem(clickedItem);
   };
 
@@ -73,7 +72,7 @@ function Home() {
       return;
     }
 
-    const updatedItems = items.map(item => {
+    const updatedItems = items.map((item) => {
       if (item.id === itemId) {
         if (item.owner === currentUser) {
           alert("본인이 등록한 물품은 본인이 대여할 수 없습니다.");
@@ -81,8 +80,8 @@ function Home() {
         }
         return {
           ...item,
-          status: 'REQUESTED',
-          renter: currentUser
+          status: "REQUESTED",
+          renter: currentUser,
         };
       }
       return item;
@@ -90,7 +89,7 @@ function Home() {
 
     setItems(updatedItems);
     localStorage.setItem("items", JSON.stringify(updatedItems));
-    setSelectedItem(null); // 모달 닫기
+    setSelectedItem(null);
     alert("대여 신청이 완료되었습니다.");
     navigate("/rental");
   };
@@ -99,6 +98,14 @@ function Home() {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("currentUser");
     window.location.reload();
+  };
+
+  const cardStyle = {
+    backgroundColor: "#fff",
+    padding: isMobile ? "16px" : "20px 24px",
+    borderRadius: "8px",
+    border: "1px solid #e1e2e3",
+    boxSizing: "border-box",
   };
 
   const secondaryBtnStyle = {
@@ -111,20 +118,26 @@ function Home() {
     fontSize: "13px",
     cursor: "pointer",
     textAlign: "left",
-    boxSizing: "border-box"
+    boxSizing: "border-box",
   };
 
   return (
-    <div style={{ backgroundColor: "#f4f5f7", minHeight: "calc(100vh - 53px)", fontFamily: "sans-serif", padding: "24px 0 40px 0", boxSizing: "border-box" }}>
-
-      {/* 전체 와이드 레이아웃 */}
-      <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", display: "flex", gap: "20px", padding: "0 20px", boxSizing: "border-box" }}>
-
-        {/* [좌측 영역] 검색 바 + 카테고리 필터 + 통합 물품 리스트 */}
+    <div style={{ backgroundColor: "#f4f5f7", minHeight: "calc(100vh - 53px)", fontFamily: "sans-serif", padding: isMobile ? "16px 0 32px 0" : "24px 0 40px 0", boxSizing: "border-box" }}>
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "1200px",
+          margin: "0 auto",
+          display: "flex",
+          flexDirection: isCompact ? "column" : "row",
+          gap: isMobile ? "14px" : "20px",
+          padding: isMobile ? "0 14px" : "0 20px",
+          boxSizing: "border-box",
+        }}
+      >
+        {/* [좌측/메인 영역] 검색 + 카테고리 필터 + 물품 리스트 */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "16px", minWidth: 0 }}>
-
-          {/* 1. 상단 검색 및 카테고리 필터 영역 */}
-          <div style={{ backgroundColor: "#fff", padding: "20px 24px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box" }}>
+          <div style={cardStyle}>
             <h2 style={{ fontSize: "16px", fontWeight: "bold", color: "#333", margin: "0 0 4px 0" }}>캠퍼스 물품 대여</h2>
             <p style={{ fontSize: "13px", color: "#666", margin: "0 0 14px 0" }}>현재 대여 가능한 공개 물품을 검색하고 대여해 보세요.</p>
 
@@ -143,13 +156,12 @@ function Home() {
                 backgroundColor: "#fff",
                 boxSizing: "border-box",
                 outline: "none",
-                marginBottom: "14px"
+                marginBottom: "14px",
               }}
             />
 
-            {/* 카테고리 필터 버튼 영역 */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-              {CATEGORIES.map(category => {
+              {CATEGORIES.map((category) => {
                 const isActive = selectedCategory === category;
                 return (
                   <button
@@ -157,14 +169,14 @@ function Home() {
                     type="button"
                     onClick={() => setSelectedCategory(category)}
                     style={{
-                      padding: "6px 12px",
+                      padding: isMobile ? "6px 10px" : "6px 12px",
                       borderRadius: "20px",
                       border: isActive ? "1px solid #00c73c" : "1px solid #d0d5dd",
                       backgroundColor: isActive ? "#00c73c" : "#fff",
-                      color: isActive ? "#fff" : "#444",
+                      color: isActive ? "#fff" : "#333",
                       fontSize: "12px",
                       fontWeight: isActive ? "bold" : "normal",
-                      cursor: "pointer"
+                      cursor: "pointer",
                     }}
                   >
                     {category}
@@ -174,11 +186,10 @@ function Home() {
             </div>
           </div>
 
-          {/* 2. 대여 가능 물품 리스트 */}
-          <div style={{ backgroundColor: "#fff", padding: "20px 24px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box" }}>
+          <div style={cardStyle}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
               <h3 style={{ fontSize: "15px", fontWeight: "bold", margin: 0, color: "#333" }}>
-                {selectedCategory === '전체' && searchTerm.trim() === ""
+                {selectedCategory === "전체" && searchTerm.trim() === ""
                   ? `전체 대여 가능 물품 리스트 (${displayedItems.length}건)`
                   : `${selectedCategory} 필터 결과 (${displayedItems.length}건)`}
               </h3>
@@ -186,17 +197,27 @@ function Home() {
 
             {displayedItems.length === 0 ? (
               <div style={{ textAlign: "center", padding: "50px 0", color: "#888", fontSize: "13px" }}>
-                {selectedCategory !== '전체' || searchTerm.trim() !== ""
+                {selectedCategory !== "전체" || searchTerm.trim() !== ""
                   ? "일치하는 검색 결과가 없습니다."
                   : "현재 대여 가능한 물품이 없습니다."}
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                {displayedItems.map(item => (
+                {displayedItems.map((item) => (
                   <div
                     key={item.id}
-                    onClick={() => handleSelectItem(item)} // 카드 클릭 시 조회수 증가 및 상세 모달 오픈
-                    style={{ padding: "16px", border: "1px solid #e5e8eb", borderRadius: "6px", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "8px", backgroundColor: "#fff", cursor: "pointer", transition: "border-color 0.2s" }}
+                    onClick={() => handleSelectItem(item)}
+                    style={{
+                      padding: isMobile ? "14px" : "16px",
+                      border: "1px solid #e5e8eb",
+                      borderRadius: "6px",
+                      boxSizing: "border-box",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "8px",
+                      backgroundColor: "#fff",
+                      cursor: "pointer",
+                    }}
                   >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <span style={{ fontSize: "11px", color: "#666", backgroundColor: "#f1f3f5", padding: "2px 6px", borderRadius: "4px" }}>
@@ -204,12 +225,14 @@ function Home() {
                       </span>
                       <span style={{ fontSize: "11px", color: "#00c73c", fontWeight: "bold" }}>대여 가능</span>
                     </div>
+
                     <div>
                       <h4 style={{ fontSize: "15px", fontWeight: "bold", margin: "0 0 4px 0", color: "#333" }}>{item.title}</h4>
-                      <p style={{ fontSize: "13px", color: "#666", margin: "0 0 6px 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description}</p>
+                      <p style={{ fontSize: "13px", color: "#666", margin: "0 0 6px 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {item.description}
+                      </p>
 
-                      {/* ERD 기준 등록일시 및 조회수 표기 */}
-                      <div style={{ fontSize: "11px", color: "#888", display: "flex", gap: "10px", marginBottom: "6px" }}>
+                      <div style={{ fontSize: "11px", color: "#888", display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "6px" }}>
                         <span>등록: {formatDate(item.createdAt)}</span>
                         <span>·</span>
                         <span>조회수 {item.viewCount || 0}</span>
@@ -219,16 +242,17 @@ function Home() {
                         {Number(item.pricePerDay).toLocaleString()}원 <span style={{ fontSize: "12px", fontWeight: "normal", color: "#888" }}>/ 1일</span>
                       </div>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f1f3f5", paddingTop: "8px", marginTop: "2px" }}>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", borderTop: "1px solid #f1f3f5", paddingTop: "8px", marginTop: "2px" }}>
                       <span style={{ fontSize: "12px", color: "#888" }}>등록자: {item.owner}</span>
                       {item.owner !== currentUser ? (
                         <button
                           type="button"
                           onClick={(e) => {
-                            e.stopPropagation(); // 카드 클릭 이벤트 버블링 방지
+                            e.stopPropagation();
                             handleRequestRental(item.id);
                           }}
-                          style={{ padding: "6px 12px", backgroundColor: "#333", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" }}
+                          style={{ padding: "6px 12px", backgroundColor: "#333", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold", flexShrink: 0 }}
                         >
                           대여 신청
                         </button>
@@ -241,14 +265,12 @@ function Home() {
               </div>
             )}
           </div>
-
         </div>
 
-        {/* [우측 영역] 로그인 / 내 정보 위젯 */}
-        <div style={{ width: "340px", display: "flex", flexDirection: "column", gap: "16px", flexShrink: 0 }}>
-
+        {/* [우측/하단 영역] 로그인 / 내 정보 위젯 */}
+        <div style={{ width: isCompact ? "100%" : "340px", display: "flex", flexDirection: "column", gap: "16px", flexShrink: 0 }}>
           {!isLoggedIn ? (
-            <div style={{ backgroundColor: "#fff", padding: "24px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box", textAlign: "center" }}>
+            <div style={{ ...cardStyle, textAlign: "center" }}>
               <h3 style={{ fontSize: "15px", fontWeight: "bold", color: "#333", margin: "0 0 6px 0" }}>Everrent 로그인</h3>
               <p style={{ fontSize: "13px", color: "#666", margin: "0 0 16px 0" }}>서비스 이용을 위해 로그인해 주세요.</p>
               <button
@@ -263,7 +285,7 @@ function Home() {
               </div>
             </div>
           ) : (
-            <div style={{ backgroundColor: "#fff", padding: "24px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box" }}>
+            <div style={cardStyle}>
               <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px", borderBottom: "1px solid #f1f3f5", paddingBottom: "14px" }}>
                 <div style={{ width: "40px", height: "40px", borderRadius: "50%", backgroundColor: "#e8fbf0", color: "#009e2f", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: "15px" }}>
                   {currentUser ? currentUser.substring(0, 1).toUpperCase() : "U"}
@@ -274,18 +296,10 @@ function Home() {
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <button
-                  type="button"
-                  onClick={() => navigate("/mypage")}
-                  style={secondaryBtnStyle}
-                >
+                <button type="button" onClick={() => navigate("/mypage")} style={secondaryBtnStyle}>
                   마이페이지
                 </button>
-                <button
-                  type="button"
-                  onClick={() => navigate("/register")}
-                  style={secondaryBtnStyle}
-                >
+                <button type="button" onClick={() => navigate("/register")} style={secondaryBtnStyle}>
                   물품 등록
                 </button>
                 <button
@@ -299,18 +313,16 @@ function Home() {
             </div>
           )}
 
-          <div style={{ backgroundColor: "#fff", padding: "20px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box", fontSize: "13px", color: "#666", lineHeight: "1.5" }}>
+          <div style={{ ...cardStyle, fontSize: "13px", color: "#666", lineHeight: "1.6" }}>
             <strong style={{ color: "#333", display: "block", marginBottom: "6px" }}>안내</strong>
-- 대여 가능한 물품만 표시됩니다.<br />
-- 카테고리와 검색어로 원하는 물품을 좁혀볼 수 있습니다.<br />
-- 물품 카드를 클릭하면 상세 내용과 조회수가 증가합니다.<br />
+            - 대여 가능한 물품만 표시됩니다.<br />
+            - 카테고리와 검색어로 원하는 물품을 좁혀볼 수 있습니다.<br />
+            - 물품 카드를 클릭하면 상세 내용과 조회수가 증가합니다.
           </div>
-
         </div>
-
       </div>
 
-      {/* 물품 상세 보기 모달 (조회수 연동) */}
+      {/* 물품 상세 보기 모달 */}
       {selectedItem && (
         <div
           onClick={() => setSelectedItem(null)}
@@ -318,7 +330,7 @@ function Home() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ backgroundColor: "#fff", width: "100%", maxWidth: "500px", padding: "24px", borderRadius: "8px", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "16px" }}
+            style={{ backgroundColor: "#fff", width: "100%", maxWidth: "500px", maxHeight: "90vh", overflowY: "auto", padding: isMobile ? "18px" : "24px", borderRadius: "8px", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "16px" }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontSize: "12px", color: "#666", backgroundColor: "#f1f3f5", padding: "3px 8px", borderRadius: "4px" }}>
@@ -335,14 +347,14 @@ function Home() {
 
             <div>
               <h3 style={{ fontSize: "18px", fontWeight: "bold", color: "#333", margin: "0 0 8px 0" }}>{selectedItem.title}</h3>
-              <div style={{ fontSize: "12px", color: "#888", display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "14px" }}>
+              <div style={{ fontSize: "12px", color: "#888", display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "14px" }}>
                 <span>등록자: {selectedItem.owner}</span>
                 <span>·</span>
                 <span>등록일: {formatDate(selectedItem.createdAt)}</span>
                 <span>·</span>
                 <span>조회수: {selectedItem.viewCount}</span>
               </div>
-              <p style={{ fontSize: "14px", color: "#444", lineHeight: "1.6", whiteSpace: "pre-wrap", backgroundColor: "#f8f9fa", padding: "14px", borderRadius: "6px", minHeight: "80px", margin: "0 0 14px 0" }}>
+              <p style={{ fontSize: "14px", color: "#444", lineHeight: "1.6", whiteSpace: "pre-wrap", backgroundColor: "#f8f9fa", padding: "14px", borderRadius: "6px", minHeight: "80px", margin: "0 0 14px 0", boxSizing: "border-box" }}>
                 {selectedItem.description || "등록된 상세 설명이 없습니다."}
               </p>
               <div style={{ fontSize: "16px", fontWeight: "bold", color: "#00c73c" }}>
@@ -350,7 +362,7 @@ function Home() {
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
+            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: "8px", marginTop: "8px" }}>
               {selectedItem.owner !== currentUser ? (
                 <button
                   type="button"
@@ -360,7 +372,7 @@ function Home() {
                   대여 신청하기
                 </button>
               ) : (
-                <div style={{ flex: 1, textAlign: "center", padding: "12px", backgroundColor: "#f1f3f5", color: "#666", borderRadius: "4px", fontSize: "14px" }}>
+                <div style={{ flex: 1, textAlign: "center", padding: "12px", backgroundColor: "#f1f3f5", color: "#666", borderRadius: "4px", fontSize: "14px", boxSizing: "border-box" }}>
                   내가 등록한 물품입니다.
                 </div>
               )}
@@ -375,7 +387,6 @@ function Home() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

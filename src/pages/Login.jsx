@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useWindowWidth } from "../hooks/useWindowWidth";
 
 function Login({ setIsLoggedIn }) {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { isMobile } = useWindowWidth();
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -62,8 +64,8 @@ function Login({ setIsLoggedIn }) {
   };
 
   return (
-    <div style={{ backgroundColor: "#f4f5f7", minHeight: "calc(100vh - 53px)", padding: "60px 20px", fontFamily: "sans-serif", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
-      <div style={{ width: "100%", maxWidth: "420px", backgroundColor: "#fff", padding: "32px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box" }}>
+    <div style={{ backgroundColor: "#f4f5f7", minHeight: "calc(100vh - 53px)", padding: isMobile ? "28px 14px" : "60px 20px", fontFamily: "sans-serif", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+      <div style={{ width: "100%", maxWidth: "420px", backgroundColor: "#fff", padding: isMobile ? "24px 18px" : "32px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box" }}>
 
         <h2 style={{ fontSize: "20px", fontWeight: "bold", color: "#333", margin: "0 0 6px 0", textAlign: "center" }}>Everrent 로그인</h2>
         <p style={{ fontSize: "13px", color: "#666", margin: "0 0 24px 0", textAlign: "center" }}>캠퍼스 물품 대여 서비스에 로그인하세요.</p>

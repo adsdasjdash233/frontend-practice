@@ -1,31 +1,34 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useWindowWidth } from "../hooks/useWindowWidth";
 
 function MyPage({ setIsLoggedIn }) {
   const navigate = useNavigate();
+  const { isMobile, isTablet } = useWindowWidth();
+  const isCompact = isMobile || isTablet;
+
   const currentUser = localStorage.getItem("currentUser");
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
   const [userInfo, setUserInfo] = useState({
-    id: '',
-    password: '',
-    name: '',
-    gender: '남성',
-    residence: ''
+    id: "",
+    password: "",
+    name: "",
+    gender: "남성",
+    residence: "",
   });
 
-  const [authPassword, setAuthPassword] = useState('');
+  const [authPassword, setAuthPassword] = useState("");
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   const [editForm, setEditForm] = useState({
-    password: '',
-    name: '',
-    gender: '남성',
-    residence: ''
+    password: "",
+    name: "",
+    gender: "남성",
+    residence: "",
   });
 
-  // 내가 등록하거나 대여한 물품 카운트를 위한 상태
   const [myItemsCount, setMyItemsCount] = useState(0);
   const [myRentalCount, setMyRentalCount] = useState(0);
 
@@ -36,19 +39,17 @@ function MyPage({ setIsLoggedIn }) {
       return;
     }
 
-    // 전체 users 배열에서 현재 로그인한 사용자(currentUser) 정보 정확히 조회
     const users = JSON.parse(localStorage.getItem("users")) || [];
-    const foundUser = users.find(user => user.id === currentUser);
+    const foundUser = users.find((user) => user.id === currentUser);
 
     if (foundUser) {
       setUserInfo(foundUser);
-      setEditForm({ ...foundUser, password: '' });
+      setEditForm({ ...foundUser, password: "" });
     }
 
-    // 물품 데이터 연동하여 통계 계산
     const allItems = JSON.parse(localStorage.getItem("items")) || [];
-    setMyItemsCount(allItems.filter(item => item.owner === currentUser).length);
-    setMyRentalCount(allItems.filter(item => item.renter === currentUser && item.status !== 'AVAILABLE').length);
+    setMyItemsCount(allItems.filter((item) => item.owner === currentUser).length);
+    setMyRentalCount(allItems.filter((item) => item.renter === currentUser && item.status !== "AVAILABLE").length);
   }, [isLoggedIn, currentUser, navigate]);
 
   const handleUnlock = (e) => {
@@ -56,7 +57,7 @@ function MyPage({ setIsLoggedIn }) {
     if (authPassword === userInfo.password) {
       setIsUnlocked(true);
       setIsEditing(true);
-      setEditForm({ ...userInfo, password: '' });
+      setEditForm({ ...userInfo, password: "" });
       alert("인증되었습니다. 회원 정보를 수정할 수 있습니다.");
     } else {
       alert("비밀번호가 일치하지 않습니다.");
@@ -65,7 +66,7 @@ function MyPage({ setIsLoggedIn }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setEditForm(prev => ({ ...prev, [name]: value }));
+    setEditForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = (e) => {
@@ -76,17 +77,17 @@ function MyPage({ setIsLoggedIn }) {
       password: editForm.password || userInfo.password,
       name: editForm.name.trim(),
       gender: editForm.gender,
-      residence: editForm.residence.trim()
+      residence: editForm.residence.trim(),
     };
 
     const users = JSON.parse(localStorage.getItem("users")) || [];
-    const updatedUsers = users.map(user => user.id === currentUser ? updatedUser : user);
+    const updatedUsers = users.map((user) => (user.id === currentUser ? updatedUser : user));
 
     localStorage.setItem("users", JSON.stringify(updatedUsers));
     setUserInfo(updatedUser);
     setIsEditing(false);
     setIsUnlocked(false);
-    setAuthPassword('');
+    setAuthPassword("");
     alert("회원 정보가 성공적으로 수정되었습니다.");
   };
 
@@ -98,6 +99,14 @@ function MyPage({ setIsLoggedIn }) {
     navigate("/login");
   };
 
+  const cardStyle = {
+    backgroundColor: "#fff",
+    padding: isMobile ? "18px" : "24px",
+    borderRadius: "8px",
+    border: "1px solid #e1e2e3",
+    boxSizing: "border-box",
+  };
+
   const inputStyle = {
     padding: "10px 12px",
     border: "1px solid #d0d5dd",
@@ -107,15 +116,24 @@ function MyPage({ setIsLoggedIn }) {
     backgroundColor: "#fff",
     outline: "none",
     boxSizing: "border-box",
-    width: "100%"
+    width: "100%",
   };
 
   return (
-    <div style={{ backgroundColor: "#f4f5f7", minHeight: "calc(100vh - 53px)", padding: "24px 0 40px 0", fontFamily: "sans-serif", boxSizing: "border-box" }}>
-      <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "0 20px", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "16px" }}>
-
+    <div style={{ backgroundColor: "#f4f5f7", minHeight: "calc(100vh - 53px)", padding: isMobile ? "16px 0 32px 0" : "24px 0 40px 0", fontFamily: "sans-serif", boxSizing: "border-box" }}>
+      <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", padding: isMobile ? "0 14px" : "0 20px", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "16px" }}>
         {/* 상단 헤더 영역 */}
-        <div style={{ backgroundColor: "#fff", padding: "20px 24px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div
+          style={{
+            ...cardStyle,
+            padding: isMobile ? "16px 18px" : "20px 24px",
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            justifyContent: "space-between",
+            alignItems: isMobile ? "flex-start" : "center",
+            gap: "12px",
+          }}
+        >
           <div>
             <h2 style={{ fontSize: "18px", fontWeight: "bold", color: "#333", margin: "0 0 4px 0" }}>마이페이지</h2>
             <p style={{ fontSize: "13px", color: "#666", margin: 0 }}>회원 정보를 관리하고 나의 대여 활동 내역을 확인합니다.</p>
@@ -123,20 +141,18 @@ function MyPage({ setIsLoggedIn }) {
           <button
             type="button"
             onClick={handleLogout}
-            style={{ padding: "8px 14px", backgroundColor: "#fff", color: "#d9534f", border: "1px solid #d9534f", borderRadius: "4px", cursor: "pointer", fontSize: "13px", fontWeight: "bold" }}
+            style={{ padding: "8px 14px", backgroundColor: "#fff", color: "#d9534f", border: "1px solid #d9534f", borderRadius: "4px", cursor: "pointer", fontSize: "13px", fontWeight: "bold", alignSelf: isMobile ? "flex-end" : "auto" }}
           >
             로그아웃
           </button>
         </div>
 
-        {/* 메인 콘텐츠 그리드 레이아웃 */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-
-          {/* [좌측] 기본 회원 정보 및 수정 영역 */}
+        {/* 메인 콘텐츠 레이아웃 */}
+        <div style={{ display: "grid", gridTemplateColumns: isCompact ? "1fr" : "1fr 1fr", gap: "16px" }}>
+          {/* [좌측/상단] 기본 회원 정보 및 수정 영역 */}
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-
             {!isUnlocked ? (
-              <div style={{ backgroundColor: "#fff", padding: "24px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box" }}>
+              <div style={cardStyle}>
                 <h3 style={{ fontSize: "15px", fontWeight: "bold", color: "#333", margin: "0 0 8px 0" }}>회원 정보 보안 인증</h3>
                 <p style={{ fontSize: "13px", color: "#666", margin: "0 0 16px 0" }}>
                   정보를 확인하거나 수정하려면 비밀번호를 한 번 더 입력해주세요.
@@ -158,7 +174,7 @@ function MyPage({ setIsLoggedIn }) {
                 </form>
               </div>
             ) : (
-              <div style={{ backgroundColor: "#fff", padding: "24px", borderRadius: "8px", border: "1px solid #00c73c", boxSizing: "border-box" }}>
+              <div style={{ ...cardStyle, border: "1px solid #00c73c" }}>
                 <p style={{ fontSize: "13px", color: "#009e2f", margin: "0 0 16px 0", fontWeight: "bold" }}>
                   [안전 모드 해제됨] 정보 수정이 가능합니다.
                 </p>
@@ -179,7 +195,6 @@ function MyPage({ setIsLoggedIn }) {
                     <input type="text" name="name" value={editForm.name} onChange={handleChange} style={inputStyle} />
                   </div>
 
-                  {/* 성별 선택 버튼 그룹 (드롭다운 겹침 방지) */}
                   <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                     <label style={{ fontSize: "12px", fontWeight: "bold", color: "#333" }}>성별</label>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
@@ -189,7 +204,7 @@ function MyPage({ setIsLoggedIn }) {
                           <button
                             key={option}
                             type="button"
-                            onClick={() => setEditForm(prev => ({ ...prev, gender: option }))}
+                            onClick={() => setEditForm((prev) => ({ ...prev, gender: option }))}
                             style={{
                               padding: "10px 12px",
                               borderRadius: "4px",
@@ -198,7 +213,7 @@ function MyPage({ setIsLoggedIn }) {
                               color: isSelected ? "#009e2f" : "#333",
                               fontSize: "13px",
                               fontWeight: isSelected ? "bold" : "normal",
-                              cursor: "pointer"
+                              cursor: "pointer",
                             }}
                           >
                             {option}
@@ -226,23 +241,22 @@ function MyPage({ setIsLoggedIn }) {
             )}
 
             {!isEditing && (
-              <div style={{ backgroundColor: "#fff", padding: "24px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box" }}>
+              <div style={cardStyle}>
                 <h3 style={{ fontSize: "15px", fontWeight: "bold", color: "#333", margin: "0 0 14px 0" }}>기본 회원 정보</h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px", color: "#555" }}>
-                  <p style={{ margin: "0" }}>아이디: <strong style={{ color: "#333" }}>{userInfo.id}</strong></p>
-                  <p style={{ margin: "0" }}>비밀번호: <strong style={{ color: "#333" }}>••••••••</strong> (마스킹됨)</p>
-                  <p style={{ margin: "0" }}>이름: <strong style={{ color: "#333" }}>{userInfo.name || "미입력"}</strong></p>
-                  <p style={{ margin: "0" }}>성별: <strong style={{ color: "#333" }}>{userInfo.gender || "미입력"}</strong></p>
-                  <p style={{ margin: "0" }}>거주지역: <strong style={{ color: "#333" }}>{userInfo.residence || "미입력"}</strong></p>
+                  <p style={{ margin: 0 }}>아이디: <strong style={{ color: "#333" }}>{userInfo.id}</strong></p>
+                  <p style={{ margin: 0 }}>비밀번호: <strong style={{ color: "#333" }}>••••••••</strong> (마스킹됨)</p>
+                  <p style={{ margin: 0 }}>이름: <strong style={{ color: "#333" }}>{userInfo.name || "미입력"}</strong></p>
+                  <p style={{ margin: 0 }}>성별: <strong style={{ color: "#333" }}>{userInfo.gender || "미입력"}</strong></p>
+                  <p style={{ margin: 0 }}>거주지역: <strong style={{ color: "#333" }}>{userInfo.residence || "미입력"}</strong></p>
                 </div>
               </div>
             )}
-
           </div>
 
-          {/* [우측] 나의 활동 요약 및 바로가기 */}
+          {/* [우측/하단] 나의 활동 요약 및 바로가기 */}
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            <div style={{ backgroundColor: "#fff", padding: "24px", borderRadius: "8px", border: "1px solid #e1e2e3", boxSizing: "border-box" }}>
+            <div style={cardStyle}>
               <h3 style={{ fontSize: "15px", fontWeight: "bold", color: "#333", margin: "0 0 14px 0" }}>나의 대여 활동 요약</h3>
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 16px", backgroundColor: "#f8f9fa", borderRadius: "6px", fontSize: "14px", color: "#333" }}>
@@ -263,9 +277,7 @@ function MyPage({ setIsLoggedIn }) {
               </button>
             </div>
           </div>
-
         </div>
-
       </div>
     </div>
   );
