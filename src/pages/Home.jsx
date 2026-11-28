@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { formatDate } from "../utils/dateUtils";
 import { useWindowWidth } from "../hooks/useWindowWidth";
+import CategoryThumb from "../components/CategoryThumb";
 
 /* ===== 디자인 토큰: pages 안의 모든 파일 상단에 동일하게 들어가는 블록 (외부 파일 불필요) ===== */
 const T = {
@@ -344,6 +345,7 @@ function Home() {
                       transition: "box-shadow 0.2s, border-color 0.2s, transform 0.2s",
                     }}
                   >
+                    <CategoryThumb category={item.category} />
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <span style={categoryTag}>{item.category}</span>
                       <span
