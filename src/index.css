@@ -1,62 +1,51 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+/* Pretendard 웹폰트 (index.html 수정 없이 여기서 불러옴. @import는 반드시 파일 맨 위) */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+:root {
+  /* pages / Navbar 의 디자인 토큰과 같은 값 */
+  --text: #64748b;
+  --text-h: #1e293b;
+  --bg: #ffffff;
+  --page-bg: #f8fafc;
+  --border: #e2e8f0;
+  --code-bg: #f1f5f9;
+  --accent: #0d9488;
+  --accent-bg: rgba(13, 148, 136, 0.1);
+  --accent-border: rgba(13, 148, 136, 0.45);
+  --shadow:
+    rgba(15, 23, 42, 0.08) 0 8px 24px, rgba(15, 23, 42, 0.04) 0 2px 6px;
+
+  --sans: "Pretendard", "Noto Sans KR", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+  --heading: var(--sans);
   --mono: ui-monospace, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  /* 페이지 색을 직접 지정하는 구조라 라이트 고정 (다크모드 PC에서 입력창/스크롤바가 어긋나는 것 방지) */
+  color-scheme: light;
+  color: var(--text-h);
+  background: var(--page-bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: #f4f5f7;
+  background-color: var(--page-bg);
 }
 
-/* 화면 전체 폭을 넓게 사용하도록 수정된 #root 설정 */
 #root {
   width: 100%;
   max-width: 100% !important;
@@ -69,29 +58,62 @@ body {
   box-sizing: border-box;
 }
 
+/* 폼 요소는 기본적으로 폰트를 상속하지 않으므로 상속시킴 */
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+  letter-spacing: inherit;
+}
+
+::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+}
+
+::selection {
+  background: rgba(13, 148, 136, 0.2);
+}
+
+/* 키보드 탭 이동 시에만 보이는 포커스 표시 (마우스 클릭엔 안 보임) */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 h1,
 h2 {
   font-family: var(--heading);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-h);
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+  font-size: 40px;
+  letter-spacing: -0.03em;
+  margin: 24px 0;
 }
 
 h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   margin: 0 0 8px;
-  @media (max-width: 1024px) {
+}
+
+@media (max-width: 1024px) {
+  h1 {
+    font-size: 32px;
+    margin: 20px 0;
+  }
+  h2 {
     font-size: 20px;
   }
 }
@@ -100,28 +122,23 @@ p {
   margin: 0;
 }
 
-code,
-.counter {
+code {
   font-family: var(--mono);
   display: inline-flex;
-  border-radius: 4px;
+  border-radius: 6px;
   color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
+  font-size: 14px;
+  line-height: 1.35;
+  padding: 3px 7px;
   background: var(--code-bg);
 }
 
-/* 상단 고정 네비게이션 바 */
+/* ===== 아래는 기존에 있던 클래스 기반 스타일 (pages가 인라인 스타일이라 쓰이지 않으면 통째로 삭제 가능) ===== */
 .top-navbar {
   width: 100%;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
   padding: 14px 32px;
-  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 28px;
@@ -133,7 +150,7 @@ code {
   margin: 0;
   padding: 0;
   gap: 24px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--text);
 }
@@ -145,19 +162,17 @@ code {
 
 .nav-menu li:hover,
 .nav-menu li.active {
-  color: var(--text-h);
-  font-weight: 700;
+  color: var(--accent);
+  font-weight: 600;
 }
 
-/* 메인 컨텐츠 와이드 컨테이너 */
 .main-container {
   width: 100%;
-  max-width: 1360px;
-  margin: 28px auto;
-  padding: 0 24px;
-  box-sizing: border-box;
+  max-width: 1160px;
+  margin: 24px auto;
+  padding: 0 20px;
   display: flex;
-  gap: 24px;
+  gap: 20px;
   align-items: flex-start;
 }
 
@@ -165,27 +180,24 @@ code {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .right-column {
-  width: 320px;
+  width: 300px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
-/* 공통 카드 박스 */
 .card-box {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 24px;
-  box-sizing: border-box;
 }
 
-/* 검색 입력창 개선  깔끔한 밝은 입력창) */
 .search-input-box {
   width: 100%;
   margin-top: 16px;
@@ -195,9 +207,8 @@ code {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 8px;
-  box-sizing: border-box;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .search-input-box:focus {
@@ -205,7 +216,6 @@ code {
   box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
-/* 우측 프로필 & 버튼 스타일 */
 .profile-header {
   display: flex;
   align-items: center;
@@ -218,7 +228,7 @@ code {
 .profile-avatar {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
+  border-radius: 10px;
   background: var(--accent-bg);
   color: var(--accent);
   border: 1px solid var(--accent-border);
@@ -246,7 +256,6 @@ code {
   background: #fef2f2;
 }
 
-/* 반응형 대응 */
 @media (max-width: 900px) {
   .main-container {
     flex-direction: column;
